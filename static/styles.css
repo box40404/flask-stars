@@ -1,0 +1,306 @@
+/* Основные стили для HAPPY STARS - точно по макету */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #F8F0E3;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Header - точно как в макете */
+.header {
+    padding: 20px 0;
+    position: relative;
+    z-index: 10;
+}
+.header-container-content{
+}
+
+.logo {
+    color: #2C2C54;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.btn-support {
+    background-color: #271877;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-support:hover {
+    background-color: #3C2A9C; /* Slightly brighter shade of #271877 */
+    color: white; /* Ensure text color remains */
+    border: none; /* Ensure border doesn't appear */
+    border-radius: 16px; /* Maintain border-radius */
+    padding: 12px 24px; /* Maintain padding */
+}
+
+/* Main Content - точно как в макете */
+.main-content {
+    padding: 60px 0;
+    min-height: 70vh;
+}
+
+.main-title {
+    color: #271877;
+    font-size: 2.2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.HAPPY-STAR__container{
+    display: flex;
+}
+
+/* Purchase Form - точно как в макете */
+.purchase-section {
+    padding: 20px;
+}
+
+.purchase-form {
+    background-color: #271877;
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #2C2C54;
+    z-index: 2;
+}
+
+.form-control {
+    background-color: white;
+    border: none;
+    padding: 15px 15px 15px 50px;
+    border-radius: 10px;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.form-control:focus {
+    outline: none;
+}
+
+/* Star Options - точно как в макете */
+.star-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+}
+
+.option-item input[type="radio"] {
+    display: none;
+}
+
+.option-item label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    width: 100%;
+    justify-content: center;
+}
+
+.option-item input[type="radio"]:checked + label {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.option-item i {
+    color: #FFD700;
+}
+
+.more-option label {
+    color: #B8B8D1;
+    font-style: italic;
+}
+
+.more-option .fa-chevron-down {
+    margin-left: 5px;
+    font-size: 0.8rem;
+}
+
+.cost-display {
+    color: white;
+}
+
+.status-display {
+    display: none;
+    color: white;
+}
+
+/* Buy Button - точно как в макете */
+.btn-buy {
+    background-color: #F9B2DF;
+    color: #271877;
+    border: 3px solid #271877;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.btn-buy:hover {
+    background-color: #FFC1E6; /* Slightly brighter pink for hover effect */
+    border: 3px solid #271877; /* Ensure border remains on hover */
+}
+
+/* Footer - точно как в макете */
+.footer {
+    margin-top: 60px;
+    position: relative;
+}
+
+.about-link {
+    color: #271877;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.footer-bar {
+    height: 8px;
+    background-color: #271877;
+    margin-top: 20px;
+}
+
+/* Background Stars - точно как в макете */
+.background-stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.sparkle-star {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #FFB6C1;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    opacity: 0.6;
+}
+
+.star-1 { top: 15%; left: 10%; }
+.star-2 { top: 25%; right: 15%; }
+.star-3 { top: 45%; left: 5%; }
+.star-4 { top: 65%; right: 10%; }
+.star-5 { top: 75%; left: 20%; }
+.star-6 { top: 35%; right: 25%; }
+.star-7 { top: 55%; left: 30%; }
+.star-8 { top: 85%; right: 30%; }
+
+/* Responsive Design для 1920px */
+@media (min-width: 1920px) {
+    .container {
+        max-width: 1800px;
+    }
+    
+    .main-title {
+        font-size: 2.8rem;
+    }
+    
+    .logo h1 {
+        font-size: 3rem;
+    }
+    
+    .star-body {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .purchase-form {
+        padding: 40px;
+    }
+    
+    .btn-buy {
+        padding: 20px 40px;
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 991px) {
+    .header-container-content{
+        flex-direction: column;
+        gap: 50px;
+    }
+    .HAPPY-STAR__container{
+        justify-content: center;
+    }
+    .HAPPY-STAR__container_MASKOT{
+        height:350px;
+        width: 350px;
+    }
+}
+
+@media (min-width: 768px) {
+    .HAPPY-STAR__container{
+        justify-content: center;
+    }
+    .HAPPY-STAR__container_MASKOT{
+        height:350px;
+        width: 350px;
+    }
+}
+
+@media (max-width: 475px) {
+    .logo-img {
+        width: 350px;
+    }
+    .btn-support {
+        padding: 12px 32px;
+    }
+}
+
+@media (max-width: 320px) {
+    .logo-img {
+        width: 300px;
+    }
+    .HAPPY-STAR__container_MASKOT{
+        width: 300px;
+        height: 300px;
+    }
+}

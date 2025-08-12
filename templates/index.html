@@ -1,17 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Звездный рынок</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAPPY STARS - Покупка звезд Telegram</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <h1>Звездный рынок</h1>
-    <button onclick="window.location.href='/buy'">⭐ Купить звезды</button>
-    <button onclick="window.location.href='/support'">📞 Поддержка</button>
-    <button onclick="window.location.href='/test'">📞 test</button>
-    <script>
-        window.Telegram.WebApp.ready();
-    </script>
+    <header class="header">
+        <div class="container">
+            <div class="header-container-content d-flex justify-content-between align-items-center">
+                <div class="logo">
+                    <img class="logo-img" src="/static/HAPPY_STARS.svg" alt="HAPPY STARS">
+                </div>
+                <button class="btn btn-support" id="telegramAuthButton">
+                    Авторизоваться через Telegram
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="HAPPY-STAR__container col-lg-6">
+                    <img class="HAPPY-STAR__container_MASKOT" src="/static/Group_2.svg" alt="Маскот">
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="purchase-section">
+                        <h2 class="main-title">ПОКУПКА ЗВЁЗД TELEGRAM</h2>
+                        
+                        <div class="purchase-form">
+                            <div class="form-group">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-search input-icon"></i>
+                                    <input type="text" class="form-control" id="usernameInput" placeholder="Имя пользователя Telegram (например, @username)" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-star input-icon"></i>
+                                    <input type="number" class="form-control" id="quantityInput" placeholder="Количество от 50 до 10,000" min="50" max="10000" required>
+                                </div>
+                            </div>
+
+                            <div class="star-options">
+                                <div class="option-item">
+                                    <input type="radio" name="stars" id="stars50" value="50" checked>
+                                    <label for="stars50">
+                                        <i class="fas fa-star"></i>
+                                        50 звёзд
+                                    </label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" name="stars" id="stars100" value="100">
+                                    <label for="stars100">
+                                        <i class="fas fa-star"></i>
+                                        100 звёзд
+                                    </label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" name="stars" id="stars200" value="200">
+                                    <label for="stars200">
+                                        <i class="fas fa-star"></i>
+                                        200 звёзд
+                                    </label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" name="stars" id="stars500" value="500">
+                                    <label for="stars500">
+                                        <i class="fas fa-star"></i>
+                                        500 звёзд
+                                    </label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" name="stars" id="stars1000" value="1000">
+                                    <label for="stars1000">
+                                        <i class="fas fa-star"></i>
+                                        1000 звёзд
+                                    </label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" name="stars" id="stars5000" value="5000">
+                                    <label for="stars5000">
+                                        <i class="fas fa-star"></i>
+                                        5000 звёзд
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="currencySelect">Валюта:</label>
+                                <select class="form-control" id="currencySelect">
+                                    <option value="TON">TON</option>
+                                    <option value="USDT">USDT</option>
+                                </select>
+                            </div>
+
+                            <div class="cost-display">
+                                <p>Стоимость: <span id="costOutput">0</span> <span id="currencyOutput">TON</span></p>
+                            </div>
+
+                            <div class="status-display">
+                                <p>Статус: <span id="statusOutput"></span></p>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-buy" id="buyButton" onclick="buyStars()">
+                            Купить <span id="buyButtonStars">50</span> звёзд
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/script.js"></script>
+    <script src="/static/backend-script.js"></script>
 </body>
 </html>
