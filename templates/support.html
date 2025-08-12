@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Поддержка</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Поддержка</h1>
+    <p>Свяжитесь с нами:</p>
+    <a id="support-link" href="#">Написать в поддержку</a>
+    <script>
+        fetch('/api/support')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('support-link').href = data.support_url;
+            })
+            .catch(() => alert('Ошибка загрузки ссылки'));
+    </script>
+</body>
+</html>

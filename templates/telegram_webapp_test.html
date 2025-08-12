@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Расширенный тест Telegram WebApp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            font-size: 12px;
+            padding: 5px 10px;
+        }
+        
+        .critical {
+            background-color: #721c24;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Расширенная диагностика Telegram WebApp</h1>
+        <p>Специальная версия для диагностики проблем с Dev Tunnels и внешними доменами.</p>
+        
+        <div id="critical-check" class="test-section">
+            <h3>🚨 Критическая проверка</h3>
+            <div id="critical-status">Анализ...</div>
+        </div>
+        
+        <div id="useragent-check" class="test-section">
+            <h3>1. Анализ User Agent</h3>
+            <div id="useragent-status">Проверка...</div>
+        </div>
+        
+        <div id="telegram-check" class="test-section">
+            <h3>2. Проверка Telegram WebApp API</h3>
+            <div id="telegram-status">Проверка...</div>
+        </div>
+        
+        <div id="initdata-check" class="test-section">
+            <h3>3. Проверка initData</h3>
+            <div id="initdata-status">Проверка...</div>
+            <div id="initdata-content"></div>
+        </div>
+        
+        <div id="domain-check" class="test-section">
+            <h3>4. Анализ домена</h3>
+            <div id="domain-status">Проверка...</div>
+        </div>
+        
+        <div id="headers-check" class="test-section">
+            <h3>5. HTTP заголовки</h3>
+            <button onclick="checkHeaders()">Проверить заголовки</button>
+            <div id="headers-content"></div>
+        </div>
+        
+        <div id="telegram-specific" class="test-section">
+            <h3>6. Telegram-специфичные проверки</h3>
+            <div id="telegram-specific-content">Проверка...</div>
+        </div>
+        
+        <div id="solutions" class="test-section info">
+            <h3>💡 Рекомендуемые решения</h3>
+            <div id="solutions-content">Анализ...</div>
+        </div>
+        
+        <div id="bot-config" class="test-section warning">
+            <h3>⚙️ Конфигурация бота</h3>
+            <div id="bot-config-content">
+                <p><strong>Для вашего домена используйте следующие настройки:</strong></p>
+                <p><strong>URL для @BotFather:</strong> <code id="bot-url"></code></p>
+                <button onclick="copyBotUrl()">Копировать URL</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let diagnosticData = {};
+        
+        function checkCritical() {
+            const statusDiv = document.getElementById('critical-status');
+            const userAgent = navigator.userAgent;
+            const isTelegramWebApp = userAgent.includes('TelegramBot') || 
+                                   userAgent.includes('Telegram') ||
+                                   (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
+            
+            if (!isTelegramWebApp) {
+                statusDiv.innerHTML = 
+                    '<div class="critical">' +
+                    '🚨 КРИТИЧЕСКАЯ ПРОБЛЕМА: Страница открыта НЕ в Telegram WebApp!<br>' +
+                    'Telegram открыл страницу во внешнем браузере, поэтому initData недоступен.<br>' +
+                    'Это может быть связано с доменом devtunnels.ms или настройками бота.' +
+                    '</div>';
+                diagnosticData.critical = 'external_browser';
+            } else {
+                statusDiv.innerHTML = '<div class="success">✅ Страница открыта в Telegram WebApp</div>';
+                diagnosticData.critical = 'telegram_webapp';
+            }
+        }
+        
+        function checkUserAgent() {
+            const statusDiv = document.getElementById('useragent-status');
+            const userAgent = navigator.userAgent;
+            
+            let analysis = '<p><strong>User Agent:</strong></p><pre>' + userAgent + '</pre>';
+            
+            if (userAgent.includes('TelegramBot')) {
+                analysis += '<div class="success">✅ Обнаружен Telegram Bot User Agent</div>';
+                diagnosticData.userAgent = 'telegram_bot';
+            } else if (userAgent.includes('Telegram')) {
+                analysis += '<div class="warning">⚠️ Обнаружен Telegram, но не Bot User Agent</div>';
+                diagnosticData.userAgent = 'telegram_other';
+            } else {
+                analysis += '<div class="error">❌ Обычный браузер - НЕ Telegram WebApp</div>';
+                analysis += '<p><strong>Ожидаемый User Agent должен содержать:</strong></p>';
+                analysis += '<ul><li>TelegramBot</li><li>или другие Telegram идентификаторы</li></ul>';
+                diagnosticData.userAgent = 'regular_browser';
+            }
+            
+            statusDiv.innerHTML = analysis;
+        }
+        
+        function checkTelegramWebApp() {
+            const statusDiv = document.getElementById('telegram-status');
+            
+            if (typeof window.Telegram === 'undefined') {
+                statusDiv.innerHTML = '<div class="error">❌ window.Telegram недоступен</div>';
+                diagnosticData.telegram = 'unavailable';
+                return false;
+            }
+            
+            if (typeof window.Telegram.WebApp === 'undefined') {
+                statusDiv.innerHTML = '<div class="error">❌ window.Telegram.WebApp недоступен</div>';
+                diagnosticData.telegram = 'no_webapp';
+                return false;
+            }
+            
+            let info = '<div class="success">✅ Telegram WebApp API доступен</div>';
+            
+            // Проверяем доступные свойства
+            const webApp = window.Telegram.WebApp;
+            info += '<p><strong>Доступные свойства WebApp:</strong></p><ul>';
+            
+            const properties = ['initData', 'initDataUnsafe', 'version', 'platform', 'colorScheme', 'themeParams', 'isExpanded', 'viewportHeight', 'viewportStableHeight'];
+            properties.forEach(prop => {
+                if (webApp[prop] !== undefined) {
+                    let value = webApp[prop];
+                    if (typeof value === 'object') {
+                        value = JSON.stringify(value);
+                    }
+                    info += `<li><strong>${prop}:</strong> ${value}</li>`;
+                }
+            });
+            info += '</ul>';
+            
+            statusDiv.innerHTML = info;
+            diagnosticData.telegram = 'available';
+            
+            // Инициализируем WebApp
+            try {
+                window.Telegram.WebApp.ready();
+                statusDiv.innerHTML += '<div class="success">✅ WebApp инициализирован</div>';
+            } catch (e) {
+                statusDiv.innerHTML += '<div class="error">❌ Ошибка инициализации: ' + e.message + '</div>';
+            }
+            
+            return true;
+        }
+        
+        function checkInitData() {
+            const statusDiv = document.getElementById('initdata-status');
+            const contentDiv = document.getElementById('initdata-content');
+            
+            if (!diagnosticData.telegram || diagnosticData.telegram === 'unavailable') {
+                statusDiv.innerHTML = '<div class="error">❌ Telegram WebApp недоступен</div>';
+                return;
+            }
+            
+            const initData = window.Telegram.WebApp.initData;
+            const initDataUnsafe = window.Telegram.WebApp.initDataUnsafe;
+            
+            if (!initData || initData.length === 0) {
+                statusDiv.innerHTML = '<div class="error">❌ initData пустой</div>';
+                
+                let content = '<p><strong>Возможные причины для devtunnels.ms:</strong></p>';
+                content += '<ul>';
+                content += '<li>Telegram не доверяет временным доменам *.devtunnels.ms</li>';
+                content += '<li>Домен заблокирован Telegram</li>';
+                content += '<li>Неправильная настройка WebApp в боте</li>';
+                content += '<li>Telegram открывает страницу во внешнем браузере</li>';
+                content += '</ul>';
+                
+                if (initDataUnsafe && Object.keys(initDataUnsafe).length > 0) {
+                    content += '<p><strong>initDataUnsafe (небезопасные данные):</strong></p>';
+                    content += '<pre>' + JSON.stringify(initDataUnsafe, null, 2) + '</pre>';
+                    content += '<div class="warning">⚠️ Эти данные не проверены и могут быть подделаны!</div>';
+                }
+                
+                contentDiv.innerHTML = content;
+                diagnosticData.initData = null;
+                return;
+            }
+            
+            statusDiv.innerHTML = '<div class="success">✅ initData получен</div>';
+            diagnosticData.initData = initData;
+            
+            contentDiv.innerHTML = 
+                '<p><strong>Длина initData:</strong> ' + initData.length + ' символов</p>' +
+                '<p><strong>initData:</strong></p>' +
+                '<pre>' + initData + '</pre>';
+        }
+        
+        function checkDomain() {
+            const statusDiv = document.getElementById('domain-status');
+            const domain = window.location.host;
+            
+            let analysis = '<p><strong>Текущий домен:</strong> ' + domain + '</p>';
+            
+            if (domain.includes('devtunnels.ms')) {
+                analysis += '<div class="warning">⚠️ Используется Visual Studio Dev Tunnels</div>';
+                analysis += '<p><strong>Проблемы с devtunnels.ms:</strong></p>';
+                analysis += '<ul>';
+                analysis += '<li>Временный домен - может не поддерживаться Telegram</li>';
+                analysis += '<li>SSL сертификат от Microsoft может не доверяться</li>';
+                analysis += '<li>Домен может быть заблокирован</li>';
+                analysis += '</ul>';
+                
+                analysis += '<p><strong>Рекомендации:</strong></p>';
+                analysis += '<ul>';
+                analysis += '<li>Используйте ngrok вместо devtunnels</li>';
+                analysis += '<li>Получите постоянный домен</li>';
+                analysis += '<li>Попробуйте локальный туннель с другим сервисом</li>';
+                analysis += '</ul>';
+                
+                diagnosticData.domain = 'devtunnels';
+            } else if (domain.includes('ngrok.io')) {
+                analysis += '<div class="info">ℹ️ Используется ngrok - обычно работает с Telegram</div>';
+                diagnosticData.domain = 'ngrok';
+            } else if (domain.includes('localhost') || domain.includes('127.0.0.1')) {
+                analysis += '<div class="error">❌ Localhost не работает с Telegram WebApp</div>';
+                diagnosticData.domain = 'localhost';
+            } else {
+                analysis += '<div class="success">✅ Обычный домен</div>';
+                diagnosticData.domain = 'regular';
+            }
+            
+            statusDiv.innerHTML = analysis;
+        }
+        
+        function checkHeaders() {
+            const contentDiv = document.getElementById('headers-content');
+            contentDiv.innerHTML = '<div class="info">🔄 Проверка заголовков...</div>';
+            
+            fetch(window.location.href, { method: 'HEAD' })
+                .then(response => {
+                    let headers = '<p><strong>HTTP заголовки ответа:</strong></p><ul>';
+                    for (let [key, value] of response.headers.entries()) {
+                        headers += `<li><strong>${key}:</strong> ${value}</li>`;
+                    }
+                    headers += '</ul>';
+                    
+                    headers += '<p><strong>Статус:</strong> ' + response.status + ' ' + response.statusText + '</p>';
+                    
+                    contentDiv.innerHTML = headers;
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = '<div class="error">❌ Ошибка получения заголовков: ' + error.message + '</div>';
+                });
+        }
+        
+        function checkTelegramSpecific() {
+            const contentDiv = document.getElementById('telegram-specific-content');
+            
+            let checks = '';
+            
+            // Проверка referrer
+            const referrer = document.referrer;
+            checks += '<p><strong>Referrer:</strong> ' + (referrer || 'отсутствует') + '</p>';
+            
+            if (referrer.includes('telegram')) {
+                checks += '<div class="success">✅ Referrer содержит telegram</div>';
+            } else {
+                checks += '<div class="warning">⚠️ Referrer не содержит telegram</div>';
+            }
+            
+            // Проверка window.parent
+            try {
+                if (window.parent !== window) {
+                    checks += '<div class="info">ℹ️ Страница открыта в iframe</div>';
+                } else {
+                    checks += '<div class="warning">⚠️ Страница НЕ в iframe</div>';
+                }
+            } catch (e) {
+                checks += '<div class="info">ℹ️ Невозможно проверить iframe (CORS)</div>';
+            }
+            
+            // Проверка viewport
+            const viewport = {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                devicePixelRatio: window.devicePixelRatio
+            };
+            
+            checks += '<p><strong>Viewport:</strong></p>';
+            checks += '<ul>';
+            checks += `<li>Ширина: ${viewport.width}px</li>`;
+            checks += `<li>Высота: ${viewport.height}px</li>`;
+            checks += `<li>Device Pixel Ratio: ${viewport.devicePixelRatio}</li>`;
+            checks += '</ul>';
+            
+            contentDiv.innerHTML = checks;
+        }
+        
+        function generateSolutions() {
+            const contentDiv = document.getElementById('solutions-content');
+            let solutions = [];
+            
+            if (diagnosticData.critical === 'external_browser') {
+                solutions.push('🔧 <strong>Основная проблема:</strong> Telegram открывает страницу во внешнем браузере');
+                solutions.push('🔧 Попробуйте использовать ngrok вместо devtunnels: <code>ngrok http 5000</code>');
+                solutions.push('🔧 Убедитесь, что в @BotFather настроен именно WebApp, а не обычная ссылка');
+                solutions.push('🔧 Проверьте, что URL в боте точно соответствует адресу страницы');
+            }
+            
+            if (diagnosticData.domain === 'devtunnels') {
+                solutions.push('🔧 Замените devtunnels на ngrok или другой туннельный сервис');
+                solutions.push('🔧 Попробуйте получить постоянный домен для тестирования');
+            }
+            
+            if (diagnosticData.userAgent === 'regular_browser') {
+                solutions.push('🔧 Страница открывается в обычном браузере - проверьте настройки бота');
+                solutions.push('🔧 Убедитесь, что используете WebApp кнопку, а не обычную URL кнопку');
+            }
+            
+            if (solutions.length === 0) {
+                solutions.push('✅ Основные проблемы не обнаружены, проверьте настройки бота');
+            }
+            
+            contentDiv.innerHTML = '<ul><li>' + solutions.join('</li><li>') + '</li></ul>';
+        }
+        
+        function setupBotConfig() {
+            const currentUrl = window.location.href;
+            document.getElementById('bot-url').textContent = currentUrl;
+        }
+        
+        function copyBotUrl() {
+            const url = document.getElementById('bot-url').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('URL скопирован в буфер обмена!');
+            });
+        }
+        
+        // Запускаем диагностику при загрузке страницы
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                checkCritical();
+                checkUserAgent();
+                checkTelegramWebApp();
+                checkInitData();
+                checkDomain();
+                checkTelegramSpecific();
+                generateSolutions();
+                setupBotConfig();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+

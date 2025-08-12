@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Профиль</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Профиль</h1>
+    <div id="user-info"></div>
+    <h2>Последние покупки</h2>
+    <ul id="purchases"></ul>
+    <script>
+        window.Telegram.WebApp.ready();
+        // Получение данных пользователя
+        fetch('/api/user', {
+            headers: { 'telegram-init-data': window.Telegram.WebApp.initData }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                document.getElementById('user-info').innerHTML = `
+                    <p>ID: ${data.user_id}</p>
+                    <p>Имя: @${data.username}</p>
+                    <p>Дата регистрации: ${data.registration_date}</p>
+                    <p>Бонусный баланс: ${data.bonus_balance} звезд</p>
+                `;
+            })
+            .catch(() => alert('Ошибка загрузки профиля'));
+
+        // Получение покупок
+        fetch('/api/purchases', {
+            headers: { 'telegram-init-data': window.Telegram.WebApp.initData }
+        })
+            .then(response => response.json())
+            .then(purchases => {
+                const list = document.getElementById('purchases');
+                purchases.forEach(p => {
+                    const li = document.createElement('li');
+                    li.textContent = `${p.amount} звезд для @${p.recipient_username} (${p.currency}, ${p.status})`;
+                    list.appendChild(li);
+                });
+            })
+            .catch(() => alert('Ошибка загрузки покупок'));
+    </script>
+</body>
+</html>
