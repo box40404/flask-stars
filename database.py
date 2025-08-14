@@ -1,6 +1,6 @@
 import aiosqlite
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 logging.basicConfig(filename="logs/site.log", level=logging.INFO)
 
@@ -52,7 +52,7 @@ class Database:
                 INSERT INTO purchases (user_id, product, amount, recipient_username, currency, price, invoice_id, status, created_at, updated_at, bonus_stars_used, bonus_discount)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (user_id, item_type, amount, recipient_username, currency, price, invoice_id, "pending", datetime.utcnow().isoformat(), datetime.utcnow().isoformat(), bonus_stars_used, bonus_discount)
+                (user_id, item_type, amount, recipient_username, currency, price, invoice_id, "pending", (datetime.utcnow() + timedelta(hours=3)).strftime("%d.%m.%Y %H:%M:%S"), (datetime.utcnow() + timedelta(hours=3)).strftime("%d.%m.%Y %H:%M:%S"), bonus_stars_used, bonus_discount)
             )
             await db.commit()
             cursor = await db.execute("SELECT last_insert_rowid()")
@@ -84,7 +84,7 @@ class Database:
         async with aiosqlite.connect(self.db_name) as db:
             await db.execute(
                 "UPDATE purchases SET status = ?, fragment_transaction_id = ?, error_message = ?, updated_at = ? WHERE id = ?",
-                (status, transaction_id, error_message, datetime.utcnow(), purchase_id)
+                (status, transaction_id, error_message, (datetime.utcnow() + timedelta(hours=3)).strftime("%d.%m.%Y %H:%M:%S"), purchase_id)
             )
             await db.commit()
 
@@ -92,7 +92,7 @@ class Database:
         async with aiosqlite.connect(self.db_name) as db:
             await db.execute(
                 "INSERT INTO transaction_logs (purchase_id, action, status, details, timestamp) VALUES (?, ?, ?, ?, ?)",
-                (purchase_id, event, level, message, datetime.utcnow())
+                (purchase_id, event, level, message, (datetime.utcnow() + timedelta(hours=3)).strftime("%d.%m.%Y %H:%M:%S"))
             )
             await db.commit()
             logging.info(f"Transaction log: Purchase {purchase_id} - {event}: {message}")
