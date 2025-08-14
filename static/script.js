@@ -2,7 +2,7 @@
     const starOptions = document.querySelectorAll('input[name="stars"]');
     const buyButton = document.getElementById('buyButton');
     const quantityInput = document.getElementById('quantityInput');
-    const usernameInput = document.querySelector('input[placeholder="Имя пользователя Telegram"]');
+    const usernameInput = document.getElementById('usernameInput');
     
     // Обновление текста кнопки при выборе радио-кнопок
     starOptions.forEach(option => {
@@ -52,12 +52,6 @@
             alert('Введите корректное количество звезд (от 50 до 10,000)');
             quantityInput.focus();
             return;
-        }
-        
-        // Сброс формы
-        usernameInput.value = '';
-        quantityInput.value = '';
-        document.getElementById('stars50').checked = true;
-        buyButton.textContent = 'Купить 50 звёзд';
+        };
     });
     

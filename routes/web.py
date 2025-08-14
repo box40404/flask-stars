@@ -6,14 +6,10 @@ web = Blueprint("web", __name__)
 async def index():
     return await render_template("index.html")
 
-@web.route("/buy")
-async def buy():
-    return await render_template("buy.html")
-
 @web.route("/support")
 async def support():
     return await render_template("support.html")
 
-@web.route("/test")
-async def test():
-    return await render_template("telegram_webapp_test.html")
+# @web.route("/test")
+# async def test():
+#     return await render_template("telegram_webapp_test.html")
