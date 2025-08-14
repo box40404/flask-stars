@@ -99,12 +99,55 @@ async def verify_init():
     
     return jsonify({"user_id": user_id, "username": username})
 
-@api.route("/prices", methods=["GET"])
+@api.route("/prices", methods=["POST"])
 async def get_prices():
-    """Получение цен на звезды."""
+    """Получение цен на звезды с учетом бонусной скидки."""
     try:
+        data = await request.get_json()
+        init_data = data.get("initData")
+        user_id = data.get("user_id")
+        
+        # Проверяем initData, если предоставлен
+        if init_data:
+            result = verify_init_data(init_data)
+            if "error" in result:
+                logger.error(f"Verify initData failed: {result['error']}")
+                return jsonify({"error": result["error"]}), 400
+            user_id = result["user_id"]
+        
         prices = await get_star_prices()
-        return jsonify(prices)
+        response = {}
+        amount = data.get("amount", 50)  # По умолчанию 50 звезд для расчета скидки
+        
+        # Если пользователь авторизован, учитываем бонусы
+        if user_id:
+            db = current_app.config["DB"]
+            user = await db.get_user(user_id)
+            if user and user["username"]:
+                bonus_balance = await db.get_bonus_balance(user_id)
+                for currency, price_per_star in prices.items():
+                    # Считаем максимальную скидку для данного количества звезд
+                    max_discount = min(bonus_balance * price_per_star, amount * price_per_star)
+                    response[currency] = {
+                        "original": amount * price_per_star,
+                        "discounted": max(0, amount * price_per_star - max_discount)
+                    }
+            else:
+                # Если пользователь не найден, возвращаем оригинальные цены
+                for currency, price_per_star in prices.items():
+                    response[currency] = {
+                        "original": amount * price_per_star,
+                        "discounted": amount * price_per_star
+                    }
+        else:
+            # Для неавторизованных пользователей возвращаем оригинальные цены
+            for currency, price_per_star in prices.items():
+                response[currency] = {
+                    "original": amount * price_per_star,
+                    "discounted": amount * price_per_star
+                }
+        
+        return jsonify(response)
     except Exception as e:
         logger.error(f"Error getting prices: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -134,7 +177,7 @@ async def create_purchase():
     user_id = data.get("user_id")  # Может быть None для неавторизованных пользователей
     
     if not all([amount, recipient_username, currency]):
-        return jsonify({"error": "Отсутствуют обязательные поля"}), 400
+        return jsonify({"error": "Missing required fields"}), 400
     if amount < 1:
         return jsonify({"error": "Минимальное количество звезд: 1"}), 400
     
@@ -143,7 +186,7 @@ async def create_purchase():
     bot = current_app.config["BOT"]
     prices = await get_star_prices()
     if currency not in prices:
-        return jsonify({"error": "Неподдерживаемая валюта"}), 400
+        return jsonify({"error": "Unsupported currency"}), 400
     
     try:
         # Рассчитываем цену
@@ -178,7 +221,7 @@ async def create_purchase():
             )
             # Списываем бонусы
             if bonus_stars_used > 0:
-                await db.update_bonus_balance(user_id, bonus_balance - bonus_stars_used)
+                await db.update_bonus_balance(user_id, -bonus_stars_used)
                 await db.log_transaction(
                     purchase_id,
                     "bonus_payment",
