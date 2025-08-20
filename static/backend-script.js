@@ -8,6 +8,10 @@ const statusOutput = document.getElementById('statusOutput');
 const buyBtn = document.getElementById('buyButton');
 const buyButtonStars = document.getElementById('buyButtonStars');
 const starsOptions = document.querySelectorAll('input[name="stars"]');
+const telegramAuthButton = document.getElementById('telegramAuthButton');
+const userProfile = document.getElementById('userProfile');
+const userAvatar = document.getElementById('userAvatar');
+const userName = document.getElementById('userName');
 const notification = document.createElement('div');
 document.body.appendChild(notification);
 notification.id = 'notification';
@@ -22,6 +26,7 @@ notification.style.zIndex = '1000';
 
 let prices = {};
 let purchaseId = null;
+let currentUserId = null;
 
 // Функция отображения уведомлений
 function showNotification(message, type) {
@@ -38,13 +43,12 @@ function showNotification(message, type) {
 function updatePrice() {
     const amount = Number(quantityInput2.value) || 50;
     const currency = currencySelect.value;
-    // Обновляем цены с учетом текущего количества звезд
     fetch('/api/prices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            initData: window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp.initData : null,
-            user_id: localStorage.getItem("telegram_user_id") || null,
+            initData: window.Telegram?.WebApp?.initData || null,
+            user_id: window.Telegram?.WebApp?.initData ? currentUserId : getCookie("user_id") || null,
             amount: amount
         })
     })
@@ -63,45 +67,92 @@ function updatePrice() {
         .catch(() => showNotification('Ошибка загрузки цен', 'error'));
 }
 
-// Проверка Telegram Web App
+function getCookie(name) {
+    const cookies = document.cookie.split(';').map(cookie => cookie.trim());
+    for (const cookie of cookies) {
+        if (cookie.startsWith(`${name}=`)) {
+            const value = decodeURIComponent(cookie.substring(name.length + 1));
+            return value;
+        }
+    }
+    return null;
+}
+
 if (window.Telegram && window.Telegram.WebApp) {
     window.Telegram.WebApp.ready();
-    const initData = window.Telegram.WebApp.initData;
-    if (initData) {
-        localStorage.clear();
-        fetch('/api/verify-init', {
+}
+
+const initData = window.Telegram?.WebApp?.initData || "";
+if (initData) {
+    fetch('/api/verify-init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.user_id) {
+                currentUserId = data.user_id;
+                userInput.value = `@${data.username}`;
+                if (userProfile && userName) {
+                    userProfile.style.display = 'flex';
+                    userName.textContent = data.fullname;
+                    telegramAuthButton.style.display = 'none';
+                }
+                updatePrice();
+            } else {
+                showNotification(`Ошибка авторизации: ${data.error}`, 'error');
+                updatePrice();
+            }
+        })
+        .catch(() => {
+            showNotification('Ошибка сервера при проверке авторизации', 'error');
+            updatePrice();
+        });
+} else {
+    // Проверяем токен из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+        fetch('/api/verify-token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ initData })
+            body: JSON.stringify({ token })
         })
             .then(response => response.json())
             .then(data => {
                 if (data.user_id) {
-                    localStorage.setItem("telegram_user_id", data.user_id);
                     userInput.value = `@${data.username}`;
+                    if (userProfile && userName) {
+                        userProfile.style.display = 'flex';
+                        userName.textContent = data.fullname || data.username;
+                        telegramAuthButton.style.display = 'none';
+                    }
                     updatePrice();
+                    // Очищаем URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
                 } else {
                     showNotification(`Ошибка авторизации: ${data.error}`, 'error');
                     updatePrice();
                 }
             })
             .catch(() => {
-                showNotification('Ошибка сервера при проверке авторизации', 'error');
+                showNotification('Ошибка сервера при проверке токена', 'error');
                 updatePrice();
             });
-    }
-} else {
-    // Для браузера загружаем цены без initData
-    updatePrice();
-    // Восстанавливаем состояние из localStorage
-    const savedPurchaseId = localStorage.getItem('purchase_id');
-    if (savedPurchaseId) {
-        purchaseId = savedPurchaseId;
-        quantityInput2.value = localStorage.getItem('amount') || '';
-        userInput.value = localStorage.getItem('username') || '';
-        currencySelect.value = localStorage.getItem('currency') || 'TON';
-        statusOutput.textContent = 'Ожидание оплаты...';
-        checkPurchaseStatus(savedPurchaseId);
+    } else {
+        const savedUserId = getCookie('user_id');
+        if (savedUserId) {
+            const savedUsername = getCookie('username');
+            const savedFullName = getCookie('fullname');
+            userInput.value = `@${savedUsername}`;
+            userProfile.style.display = 'flex';
+            userName.textContent = savedFullName;
+            telegramAuthButton.style.display = 'none';
+            updatePrice();
+        } else {
+            updatePrice();
+        }
     }
 }
 
@@ -122,7 +173,7 @@ async function buyStars() {
                 amount,
                 recipient_username: username,
                 currency,
-                user_id: localStorage.getItem("telegram_user_id") || null
+                user_id: window.Telegram?.WebApp?.initData ? currentUserId : getCookie("user_id") || null
             })
         });
         const data = await response.json();
@@ -130,12 +181,6 @@ async function buyStars() {
             showNotification(data.error, 'error');
         } else {
             purchaseId = data.purchase_id;
-            if (!window.Telegram || !window.Telegram.WebApp) {
-                localStorage.setItem("purchase_id", data.purchase_id);
-                localStorage.setItem("amount", amount);
-                localStorage.setItem("username", username);
-                localStorage.setItem("currency", currency);
-            }
             statusOutput.textContent = 'Ожидание оплаты...';
             showNotification('Покупка создана, перенаправление на оплату...', 'success');
             if (data.invoice_url) {
@@ -159,16 +204,10 @@ function checkPurchaseStatus(purchaseId) {
                     statusOutput.textContent = `Ошибка: ${data.error}`;
                     showNotification(`Ошибка: ${data.error}`, 'error');
                     clearInterval(interval);
-                    if (!window.Telegram || !window.Telegram.WebApp) {
-                        localStorage.clear();
-                    }
                 } else if (data.status === 'completed') {
                     statusOutput.textContent = 'Покупка завершена!';
                     showNotification('Покупка успешно завершена!', 'success');
                     clearInterval(interval);
-                    if (!window.Telegram || !window.Telegram.WebApp) {
-                        localStorage.clear();
-                    }
                     quantityInput2.value = '';
                     userInput.value = userInput.value;
                     currencySelect.value = 'TON';
@@ -177,16 +216,10 @@ function checkPurchaseStatus(purchaseId) {
                     statusOutput.textContent = `Ошибка: свяжитесь с поддержкой: https://t.me/HappySupportStars`;
                     showNotification(`Ошибка: свяжитесь с поддержкой: https://t.me/HappySupportStars`, 'error');
                     clearInterval(interval);
-                    if (!window.Telegram || !window.Telegram.WebApp) {
-                        localStorage.clear();
-                    }
                 } else if (data.status === 'cancelled') {
                     statusOutput.textContent = 'Оплата не произошла в течение 15 минут, счет отменен.';
                     showNotification('Оплата не произошла в течение 15 минут, счет отменен.', 'error');
                     clearInterval(interval);
-                    if (!window.Telegram || !window.Telegram.WebApp) {
-                        localStorage.clear();
-                    }
                 }
             })
             .catch(() => {
@@ -199,6 +232,14 @@ function checkPurchaseStatus(purchaseId) {
             });
     }, 5000);
 }
+
+// Обработчик авторизации
+telegramAuthButton.addEventListener('click', () => {
+    const sessionId = crypto.randomUUID();
+    localStorage.setItem('session_id', sessionId);
+    const botUrl = `https://t.me/HappyStarsRobot?start=webapp-${sessionId}`;
+    window.location.href = botUrl;
+});
 
 // Обработчики событий
 quantityInput2.addEventListener('input', () => {

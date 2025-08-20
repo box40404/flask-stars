@@ -29,6 +29,25 @@ body {
     margin: 0;
 }
 
+.user-profile {
+    display: none;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-name {
+    color: #2C2C54;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
 .btn-support {
     background-color: #271877;
     color: white;

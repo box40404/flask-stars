@@ -1,4 +1,4 @@
-from quart import Blueprint, request, jsonify, current_app
+from quart import Blueprint, request, jsonify, current_app, make_response
 from helpers.purchase import check_invoice_status, process_stars_purchase
 from config import get_star_prices, SUPPORT_URL, ADMIN_ID
 import asyncio
@@ -8,7 +8,7 @@ import hmac
 import hashlib
 import json
 import logging
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, filename="logs/site.log")
@@ -91,13 +91,45 @@ async def verify_init():
     db = current_app.config["DB"]
     user_id = result["user_id"]
     username = result["username"]
+    fullname=f"{result.get('first_name', '')} {result.get('last_name', '')}".strip()
     
     # Проверяем, существует ли пользователь
     user = await db.get_user(user_id)
     if not user:
-        await db.create_user(username=username, fullname=f"{result.get('first_name', '')} {result.get('last_name', '')}".strip())
+        await db.create_user(user_id=user_id, username=username, fullname=fullname)
     
-    return jsonify({"user_id": user_id, "username": username})
+    return jsonify({"user_id": user_id, "username": username, "fullname": fullname})
+
+@api.route("/verify-token", methods=["POST"])
+async def verify_token():
+    """Проверка токена авторизации из URL."""
+    data = await request.get_json()
+    token = data.get("token")
+    if not token:
+        return jsonify({"error": "No token provided"}), 400
+    
+    db = current_app.config["DB"]
+    try:
+        user_id = await db.verify_auth_token(token)
+        if not user_id:
+            return jsonify({"error": "Invalid or expired token"}), 400
+        
+        user = await db.get_user(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        response = await make_response(jsonify({
+            "user_id": user["user_id"],
+            "username": user["username"],
+            "fullname": user["fullname"]
+        }))
+        response.set_cookie("user_id", str(user["user_id"]), max_age=30*24*60*60)
+        response.set_cookie("username", user["username"], max_age=30*24*60*60)
+        response.set_cookie("fullname", quote(user["fullname"]), max_age=30*24*60*60)
+        return response
+    except Exception as e:
+        logger.error(f"Error verifying token: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @api.route("/prices", methods=["POST"])
 async def get_prices():

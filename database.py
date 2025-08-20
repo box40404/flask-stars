@@ -8,6 +8,28 @@ class Database:
     def __init__(self):
         self.db_name = "database.db"
 
+    async def create_user(self, user_id: int, username: str, fullname: str, referrer_id: int = None) -> bool:
+        """Добавление пользователя в базу данных"""
+        try:
+            msk_time = (datetime.utcnow() + timedelta(hours=3)).strftime("%d.%m.%Y %H:%M:%S")
+            async with aiosqlite.connect(self.db_name) as db:
+                await db.execute("""
+                    INSERT INTO users (user_id, username, fullname, registration_date, last_activity, referrer_id, referral_level)
+                    VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, 1)
+                """, (user_id, username, fullname, msk_time, referrer_id))
+                await db.execute("""
+                    INSERT INTO bonus_balance (user_id, balance)
+                    VALUES (?, 0.0)
+                """, (user_id,))
+                await db.execute("""
+                    INSERT INTO referral_levels (user_id, level, total_referral_stars)
+                    VALUES (?, 1, 0)
+                """, (user_id,))
+                await db.commit()
+                return True
+        except Exception as e:
+            return False
+
     async def get_user(self, user_id: int):
         async with aiosqlite.connect(self.db_name) as db:
             cursor = await db.execute(
@@ -87,6 +109,22 @@ class Database:
                 (status, transaction_id, error_message, (datetime.utcnow() + timedelta(hours=3)).strftime("%d.%m.%Y %H:%M:%S"), purchase_id)
             )
             await db.commit()
+
+    async def verify_auth_token(self, token: str):
+        """Проверить токен авторизации"""
+        async with aiosqlite.connect(self.db_name) as db:
+            cursor = await db.execute(
+                "SELECT user_id FROM auth_tokens WHERE token = ? AND expires_at > ?",
+                (token, datetime.utcnow())
+            )
+            row = await cursor.fetchone()
+            if row:
+                user_id = row[0]
+                # Удаляем токен после использования
+                await db.execute("DELETE FROM auth_tokens WHERE token = ?", (token,))
+                await db.commit()
+                return user_id
+            return None
 
     async def log_transaction(self, purchase_id: int, event: str, level: str, message: str):
         async with aiosqlite.connect(self.db_name) as db:
