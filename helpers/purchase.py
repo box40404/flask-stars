@@ -178,17 +178,35 @@ async def process_stars_purchase(purchase_id: int, invoice_id: str):
         if purchase["user_id"]:
             referrer_id = await db.get_referrer_id(purchase["user_id"])
             if referrer_id:
-                bonus_amount = int(purchase["amount"] * 0.1)  # 10% от суммы покупки
-                await db.update_bonus_balance(referrer_id, bonus_amount)
-                await db.log_transaction(purchase_id, "referral_bonus", "info", f"Referrer {referrer_id} received {bonus_amount} bonuses")
-                logging.info(f"Purchase {purchase_id}: Referrer {referrer_id} received {bonus_amount} bonuses")
-                try:
-                    await bot.send_message(
-                        chat_id=referrer_id,
-                        text=f"Ваш реферал @{purchase['recipient_username']} совершил покупку на {purchase['amount']} звезд! Вам начислено {bonus_amount} бонусов."
-                    )
-                except Exception as e:
-                    logging.error(f"Purchase {purchase_id}: Failed to send referral bonus notification to {referrer_id}: {str(e)}")
+                level_rewards = {1: 0.02, 2: 0.04, 3: 0.06, 4: 0.08, 5: 0.10}
+                user = await db.get_user(purchase["user_id"])
+                purchased_stars = purchase["amount"]
+                
+                if user["referrer_id"]:
+                    referrer_id = user["referrer_id"]
+                    referrer = await db.get_user(referrer_id)
+                    if referrer:
+                        current_level = referrer["referral_level"]
+                        bonus_stars = purchased_stars * level_rewards[current_level]
+                        total_referral_stars = await db.get_total_referral_stars(referrer_id) + purchased_stars
+                        
+                        # Обновляем звезды рефералов и проверяем переход на следующий уровень
+                        new_level = min(5, (total_referral_stars // 5000) + 1)
+                        await db.update_referral_level(referrer_id, new_level, total_referral_stars)
+                        
+                        # Начисляем бонусные звезды
+                        await db.update_bonus_balance(referrer_id, bonus_stars)
+                        try:
+                            await bot.send_message(
+                                referrer_id,
+                                f"<b>🎁 Новые бонусы!</b>\n\n"
+                                f"Ваш реферал @{user['username']} купил {purchased_stars} звёзд.\n"
+                                f"Вам начислено {bonus_stars:.2f} бонусных звёзд (уровень {current_level}: {level_rewards[current_level]*100}%).\n"
+                                f"{'🎉 Поздравляем! Уровень повышен до ' + str(new_level) + '!' if new_level > current_level else ''}",
+                                parse_mode="HTML"
+                            )
+                        except Exception as e:
+                            logging.error(f"Purchase {purchase_id}: Failed to send referral bonus notification to {referrer_id}: {str(e)}")
 
     except Exception as e:
         await db.update_purchase_status(purchase_id, "failed", error_message=str(e))

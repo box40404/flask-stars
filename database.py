@@ -31,17 +31,19 @@ class Database:
             return False
 
     async def get_user(self, user_id: int):
-        async with aiosqlite.connect(self.db_name) as db:
-            cursor = await db.execute(
-                "SELECT user_id, username, fullname, registration_date, is_subscribed, last_activity, referrer_id FROM users WHERE user_id = ?",
-                (user_id,)
-            )
-            row = await cursor.fetchone()
-            if row:
-                return {
-                    "user_id": row[0], "username": row[1], "fullname": row[2], "registration_date": row[3],
-                    "is_subscribed": row[4], "last_activity": row[5], "referrer_id": row[6]
-                }
+        """Получение информации о пользователе"""
+        try:
+            async with aiosqlite.connect(self.db_name) as db:
+                db.row_factory = aiosqlite.Row
+                cursor = await db.execute("""
+                    SELECT u.*, r.level, r.total_referral_stars 
+                    FROM users u 
+                    LEFT JOIN referral_levels r ON u.user_id = r.user_id 
+                    WHERE u.user_id = ?
+                """, (user_id,))
+                row = await cursor.fetchone()
+                return dict(row) if row else None
+        except Exception as e:
             return None
 
     async def get_bonus_balance(self, user_id: int):
@@ -49,6 +51,18 @@ class Database:
             cursor = await db.execute("SELECT balance FROM bonus_balance WHERE user_id = ?", (user_id,))
             result = await cursor.fetchone()
             return result[0] if result else 0
+        
+    async def get_total_referral_stars(self, user_id: int) -> int:
+        """Получить общее количество звезд, купленных рефералами"""
+        try:
+            async with aiosqlite.connect(self.db_name) as db:
+                cursor = await db.execute("""
+                    SELECT total_referral_stars FROM referral_levels WHERE user_id = ?
+                """, (user_id,))
+                row = await cursor.fetchone()
+                return int(row[0]) if row else 0
+        except Exception as e:
+            return 0
 
     async def update_bonus_balance(self, user_id: int, amount: float):
         async with aiosqlite.connect(self.db_name) as db:
@@ -60,6 +74,22 @@ class Database:
             )
             await db.commit()
             return new_balance
+        
+    async def update_referral_level(self, user_id: int, level: int, total_referral_stars: int) -> bool:
+        """Обновление уровня реферальной системы и количества звезд рефералов"""
+        try:
+            async with aiosqlite.connect(self.db_name) as db:
+                await db.execute("""
+                    INSERT OR REPLACE INTO referral_levels (user_id, level, total_referral_stars)
+                    VALUES (?, ?, ?)
+                """, (user_id, level, total_referral_stars))
+                await db.execute("""
+                    UPDATE users SET referral_level = ? WHERE user_id = ?
+                """, (level, user_id))
+                await db.commit()
+                return True
+        except Exception as e:
+            return False
 
     async def get_referrer_id(self, user_id: int):
         async with aiosqlite.connect(self.db_name) as db:
