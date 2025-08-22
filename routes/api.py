@@ -1,6 +1,9 @@
+import base64
+import time
+from uuid import uuid4
 from quart import Blueprint, request, jsonify, current_app, make_response
-from helpers.purchase import check_invoice_status, process_stars_purchase
-from config import get_star_prices, SUPPORT_URL, ADMIN_ID
+from helpers.purchase import check_invoice_status, generate_ton_qr_code, process_stars_purchase, pending_ton_purchases
+from config import TON_WALLET_ADDRESS, get_star_prices, SUPPORT_URL, ADMIN_ID
 import asyncio
 import os
 from dotenv import load_dotenv
@@ -298,26 +301,77 @@ async def create_purchase():
             asyncio.create_task(process_stars_purchase(purchase_id, "bonus_payment"))
             return jsonify({"purchase_id": purchase_id, "invoice_url": None, "price": 0.0, "bonus_stars_used": bonus_stars_used, "bonus_discount": bonus_discount})
         
-        # Создаем инвойс, если нужна оплата
-        invoice = await crypto.create_invoice(
-            asset=currency,
-            amount=price,
-            description=f"Purchase of {amount} stars for @{recipient_username}"
-        )
-        purchase_id = await db.create_purchase(
-            user_id=user_id or 0,
-            item_type="stars",
-            amount=amount,
-            recipient_username=recipient_username.lstrip("@"),
-            currency=currency,
-            price=price,
-            invoice_id=str(invoice.invoice_id),
-            bonus_stars_used=bonus_stars_used,
-            bonus_discount=bonus_discount
-        )
+        if currency == "USDT":
+            # Создаем инвойс, если нужна оплата
+            invoice = await crypto.create_invoice(
+                asset=currency,
+                amount=price,
+                description=f"Purchase of {amount} stars for @{recipient_username}"
+            )
+            purchase_id = await db.create_purchase(
+                user_id=user_id or 0,
+                item_type="stars",
+                amount=amount,
+                recipient_username=recipient_username.lstrip("@"),
+                currency=currency,
+                price=price,
+                invoice_id=str(invoice.invoice_id),
+                bonus_stars_used=bonus_stars_used,
+                bonus_discount=bonus_discount
+            )
 
-        asyncio.create_task(check_invoice_status(purchase_id, str(invoice.invoice_id)))
-        return jsonify({"purchase_id": purchase_id, "invoice_url": invoice.bot_invoice_url, "price": price, "bonus_stars_used": bonus_stars_used, "bonus_discount": bonus_discount})
+            asyncio.create_task(check_invoice_status(purchase_id, str(invoice.invoice_id)))
+            return jsonify({"purchase_id": purchase_id, "invoice_url": invoice.bot_invoice_url, "price": price, "bonus_stars_used": bonus_stars_used, "bonus_discount": bonus_discount})
+        elif currency == "TON":
+            unique_comment = f"inv_{uuid4().hex[:16]}"
+            purchase_id = await db.create_purchase(
+                user_id=user_id,
+                item_type="⭐ Звезды",
+                amount=amount,
+                recipient_username=recipient_username,
+                currency=currency,
+                price=price,
+                invoice_id=None,
+                bonus_stars_used=bonus_stars_used,
+                bonus_discount=bonus_discount,
+                comment=unique_comment
+            )
+            
+            if not purchase_id:
+                raise Exception("Не удалось создать покупку")
+            
+            pending_ton_purchases[unique_comment] = purchase_id
+
+            asyncio.create_task(check_invoice_status(purchase_id, unique_comment))
+            
+            # Генерируем QR-код
+            qr_code = await generate_ton_qr_code(TON_WALLET_ADDRESS, price, unique_comment)
+            qr_code_base64 = base64.b64encode(qr_code.getvalue()).decode()
+
+            payment_message = (
+                f"💳 Оплата TON\n\n"
+                f"Товар: {amount} Звёзд ⭐️\n"
+                f"Получатель: @{recipient_username.lstrip('@')}\n"
+                f"Сумма: {price:.6f} TON\n"
+                f"Использовано бонусов: {bonus_stars_used:.2f} звёзд\n\n"
+                f"Отправьте {price:.6f} TON на адрес:\n"
+                f"{TON_WALLET_ADDRESS}\n\n"
+                f"С комментарием:\n"
+                f"{unique_comment}\n\n"
+                f"Или отсканируйте QR-код выше для оплаты.\n\n"
+                f"⏳ Счёт действителен 15 минут. Оплата будет проверена автоматически."
+            )
+
+            return jsonify({
+                "purchase_id": purchase_id,
+                "invoice_url": None,
+                "price": price,
+                "bonus_stars_used": bonus_stars_used,
+                "bonus_discount": bonus_discount,
+                "qr_code": f"data:image/png;base64,{qr_code_base64}",
+                "comment": unique_comment,
+                "payment_message": payment_message
+            })
     except Exception as e:
         logger.error(f"Error creating purchase: {str(e)}")
         return jsonify({"error": str(e)}), 500

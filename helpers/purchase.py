@@ -1,9 +1,112 @@
+from io import BytesIO
+import aiohttp
+import qrcode
 from quart import current_app
 import logging
 import asyncio
-from config import ADMIN_ID, get_star_prices
+from config import ADMIN_ID, TON_WALLET_ADDRESS, TONCENTER_API_KEY
 
 logging.basicConfig(filename="logs/site.log", level=logging.INFO)
+
+last_checked_lt = 0
+last_checked_hash = ""
+pending_ton_purchases = {}  # Кэш: {comment: purchase_id} для pending TON покупок
+
+async def poll_ton_transactions():
+    """Фоновая задача для опроса транзакций TON каждые 5 секунд"""
+    db = current_app.config["DB"]
+    global last_checked_lt, last_checked_hash
+    processed_lt = set()  # Кэш для отслеживания обработанных lt
+    while True:
+        try:
+            async with aiohttp.ClientSession() as session:
+                params = {
+                    "address": TON_WALLET_ADDRESS,
+                    "limit": 20,  # Последние 20 транзакций
+                }
+                if TONCENTER_API_KEY:
+                    params["api_key"] = TONCENTER_API_KEY
+                
+                async with session.get(f"https://testnet.toncenter.com/api/v2/getTransactions", params=params) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        transactions = data.get("result", [])
+                        
+                        for tx in transactions:  # Обрабатываем в порядке API (от новых к старым)
+                            tx_lt = int(tx["transaction_id"]["lt"])
+                            
+                            # Пропускаем уже обработанные транзакции
+                            if tx_lt in processed_lt:
+                                continue
+                            
+                            in_msg = tx.get("in_msg", {})
+                            value_nano = int(in_msg["value"])
+                            value_ton = value_nano / 1e9
+                            comment = in_msg.get("message", "").strip()  # Комментарий (payload)
+                            if comment in pending_ton_purchases:
+                                purchase_id = pending_ton_purchases[comment]
+                                purchase = await db.get_purchase_by_id(str(purchase_id))
+                                
+                                if purchase and purchase["status"] == "pending":
+                                    expected_price = purchase["price"]
+                                    if abs(value_ton - expected_price) < 0.01:  # Допуск на fees
+                                        # Подтверждаем платеж
+                                        await db.update_purchase_status(purchase_id, "paid")
+                                        await db.log_transaction(
+                                            purchase_id,
+                                            "payment_confirmed",
+                                            "success",
+                                            f"TON платеж подтвержден: {value_ton} TON, tx_hash: {tx['transaction_id']['hash']}"
+                                        )
+                                        await db.update_purchase_status(purchase_id, "processing")
+
+                                        del pending_ton_purchases[comment]
+                                        
+                                        # Запускаем обработку
+                                        asyncio.create_task(process_stars_purchase(purchase_id))
+                                        
+                                        # Удаляем из pending
+                                        del pending_ton_purchases[comment]
+                            
+                            # Отмечаем транзакцию как обработанную
+                            processed_lt.add(tx_lt)
+                        # Ограничиваем размер кэша
+                        if len(processed_lt) > 1000:
+                            processed_lt.clear()
+                                
+        except Exception as e:
+            logging.error(f"Ошибка при опросе TON транзакций: {e}")
+        
+        await asyncio.sleep(5)  # Каждые 5 секунд
+
+async def generate_ton_qr_code(address: str, amount: float, comment: str) -> BytesIO:
+    """Генерация QR-кода для TON-платежа"""
+
+    # Конвертируем сумму из TON в нанотоны (1 TON = 10^9 нанотон)
+    amount_nanoton = int(amount * 1_000_000_000)
+
+    # Формируем TON URI
+    ton_uri = f"ton://transfer/{address}?amount={amount_nanoton}&text={comment}"
+    
+    # Создаем QR-код
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(ton_uri)
+    qr.make(fit=True)
+    
+    # Создаем изображение
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Сохраняем в BytesIO для отправки
+    img_byte_arr = BytesIO()
+    img.save(img_byte_arr, format='PNG')
+    img_byte_arr.seek(0)
+    
+    return img_byte_arr
 
 async def check_invoice_status(purchase_id: int, invoice_id: str):
     """Проверка статуса инвойса каждые 2 секунды в течение 15 минут."""
@@ -14,40 +117,43 @@ async def check_invoice_status(purchase_id: int, invoice_id: str):
     
     try:
         max_duration = 15 * 60  # 15 минут в секундах
-        interval = 2  # Интервал проверки: 2 секунды
+        interval = 5  # Интервал проверки: 2 секунды
         max_attempts = max_duration // interval
         attempt = 1
 
         while attempt <= max_attempts:
             try:
-                invoices = await crypto.get_invoices(invoice_ids=[int(invoice_id)])
-                
-                if invoices[0].status == "paid":
-                    # Инвойс оплачен, запускаем обработку покупки
-                    await process_stars_purchase(purchase_id, invoice_id)
-                    return
-                elif invoices[0].status in ["expired", "cancelled"]:
-                    # Инвойс истек или отменен
-                    await db.update_purchase_status(purchase_id, "cancelled", error_message=f"Invoice {invoices[0].status}")
-                    await db.log_transaction(purchase_id, "invoice_failed", "error", f"Invoice {invoices[0].status}")
-                    logging.error(f"Purchase {purchase_id}: Invoice {invoices[0].status}")
-                    # Удаляем инвойс
-                    try:
-                        await crypto.delete_invoice(int(invoice_id))
-                        logging.info(f"Purchase {purchase_id}: Invoice {invoice_id} deleted")
-                    except Exception as e:
-                        logging.error(f"Purchase {purchase_id}: Failed to delete invoice {invoice_id}: {str(e)}")
-                    # Отправляем уведомление об отмене
-                    purchase = await db.get_purchase_by_id(str(purchase_id))
-                    if purchase and purchase.get("user_id"):
+                purchase = await db.get_purchase_by_id(str(purchase_id))
+                if purchase["currency"] == "TON":
+                    if purchase["status"] in ["paid", "processing", "completed"]:
+                        return
+                else:
+                    invoices = await crypto.get_invoices(invoice_ids=[int(invoice_id)])
+                    if invoices[0].status == "paid":
+                        # Инвойс оплачен, запускаем обработку покупки
+                        await process_stars_purchase(purchase_id, invoice_id)
+                        return
+                    elif invoices[0].status in ["expired", "cancelled"]:
+                        # Инвойс истек или отменен
+                        await db.update_purchase_status(purchase_id, "cancelled", error_message=f"Invoice {invoices[0].status}")
+                        await db.log_transaction(purchase_id, "invoice_failed", "error", f"Invoice {invoices[0].status}")
+                        logging.error(f"Purchase {purchase_id}: Invoice {invoices[0].status}")
+                        # Удаляем инвойс
                         try:
-                            await bot.send_message(
-                                chat_id=purchase["user_id"],
-                                text=f"Покупка #{purchase_id} на {purchase['amount']} звезд отменена: счет истек или был отменен."
-                            )
+                            await crypto.delete_invoice(int(invoice_id))
+                            logging.info(f"Purchase {purchase_id}: Invoice {invoice_id} deleted")
                         except Exception as e:
-                            logging.error(f"Purchase {purchase_id}: Failed to send cancellation notification: {str(e)}")
-                    return
+                            logging.error(f"Purchase {purchase_id}: Failed to delete invoice {invoice_id}: {str(e)}")
+                        # Отправляем уведомление об отмене
+                        if purchase and purchase.get("user_id"):
+                            try:
+                                await bot.send_message(
+                                    chat_id=purchase["user_id"],
+                                    text=f"Покупка #{purchase_id} на {purchase['amount']} звезд отменена: счет истек или был отменен."
+                                )
+                            except Exception as e:
+                                logging.error(f"Purchase {purchase_id}: Failed to send cancellation notification: {str(e)}")
+                        return
                 # Ждем 2 секунды перед следующей попыткой
                 await asyncio.sleep(interval)
                 attempt += 1
@@ -58,24 +164,28 @@ async def check_invoice_status(purchase_id: int, invoice_id: str):
                 attempt += 1
 
         # Если 15 минут истекли, отменяем покупку
-        await db.update_purchase_status(purchase_id, "cancelled", error_message="Invoice check timeout")
-        await db.log_transaction(purchase_id, "invoice_timeout", "error", "Invoice check timeout after 15 minutes")
-        logging.error(f"Purchase {purchase_id}: Invoice check timeout after {max_attempts} attempts")
-        try:
-            await crypto.delete_invoice(int(invoice_id))
-            logging.info(f"Purchase {purchase_id}: Invoice {invoice_id} deleted due to timeout")
-        except Exception as e:
-            logging.error(f"Purchase {purchase_id}: Failed to delete invoice {invoice_id}: {str(e)}")
-        # Отправляем уведомление об отмене
-        purchase = await db.get_purchase_by_id(str(purchase_id))
-        if purchase and purchase.get("user_id"):
+        if purchase['currency'] == "TON" and invoice_id in pending_ton_purchases:
+            await db.update_purchase_status(purchase_id, "cancelled", error_message="Invoice check timeout")
+            del pending_ton_purchases[invoice_id]
+        else:
+            await db.update_purchase_status(purchase_id, "cancelled", error_message="Invoice check timeout")
+            await db.log_transaction(purchase_id, "invoice_timeout", "error", "Invoice check timeout after 15 minutes")
+            logging.error(f"Purchase {purchase_id}: Invoice check timeout after {max_attempts} attempts")
             try:
-                await bot.send_message(
-                    chat_id=purchase["user_id"],
-                    text=f"Покупка #{purchase_id} на {purchase['amount']} звезд отменена: время ожидания оплаты (15 минут) истекло."
-                )
+                await crypto.delete_invoice(int(invoice_id))
+                logging.info(f"Purchase {purchase_id}: Invoice {invoice_id} deleted due to timeout")
             except Exception as e:
-                logging.error(f"Purchase {purchase_id}: Failed to send timeout notification: {str(e)}")
+                logging.error(f"Purchase {purchase_id}: Failed to delete invoice {invoice_id}: {str(e)}")
+            # Отправляем уведомление об отмене
+            purchase = await db.get_purchase_by_id(str(purchase_id))
+            if purchase and purchase.get("user_id"):
+                try:
+                    await bot.send_message(
+                        chat_id=purchase["user_id"],
+                        text=f"Покупка #{purchase_id} на {purchase['amount']} звезд отменена: время ожидания оплаты (15 минут) истекло."
+                    )
+                except Exception as e:
+                    logging.error(f"Purchase {purchase_id}: Failed to send timeout notification: {str(e)}")
     except Exception as e:
         await db.update_purchase_status(purchase_id, "cancelled", error_message=f"Unexpected error: {str(e)}")
         await db.log_transaction(purchase_id, "check_invoice_failed", "error", f"Unexpected error: {str(e)}")
@@ -96,7 +206,7 @@ async def check_invoice_status(purchase_id: int, invoice_id: str):
             except Exception as e:
                 logging.error(f"Purchase {purchase_id}: Failed to send error notification: {str(e)}")
 
-async def process_stars_purchase(purchase_id: int, invoice_id: str):
+async def process_stars_purchase(purchase_id: int, invoice_id: str = None):
     """Обработка покупки звезд после подтверждения оплаты."""
     crypto = current_app.config["CRYPTO"]
     bot = current_app.config["BOT"]
@@ -164,7 +274,7 @@ async def process_stars_purchase(purchase_id: int, invoice_id: str):
                 chat_id=ADMIN_ID[0],
                 text=f"<b>💰 Заказ выполнен!</b>\n\n"
                      f"Покупка ID: {purchase_id}\n"
-                     f"Пользователь: {purchase['user_id']}\n"
+                     f"Пользователь: {purchase['username']}\n"
                      f"Товар: {purchase['amount']} Звёзд ⭐️\n"
                      f"Получатель: @{purchase['recipient_username']}\n"
                      f"Валюта: {purchase['currency']}\n"

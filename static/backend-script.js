@@ -55,7 +55,7 @@ function updatePrice() {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                showNotification(`Ошибка загрузки цен: ${data.error}`, 'error');
+                showNotification(`Ошибка загрузки цен`, 'error');
                 return;
             }
             prices = data;
@@ -101,7 +101,7 @@ if (initData) {
                 }
                 updatePrice();
             } else {
-                showNotification(`Ошибка авторизации: ${data.error}`, 'error');
+                showNotification(`Ошибка авторизации`, 'error');
                 updatePrice();
             }
         })
@@ -132,7 +132,7 @@ if (initData) {
                     // Очищаем URL
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } else {
-                    showNotification(`Ошибка авторизации: ${data.error}`, 'error');
+                    showNotification(`Ошибка авторизации`, 'error');
                     updatePrice();
                 }
             })
@@ -178,16 +178,20 @@ async function buyStars() {
         });
         const data = await response.json();
         if (data.error) {
-            showNotification(data.error, 'error');
+            showNotification('Ошибка при создании покупки', 'error');
         } else {
             purchaseId = data.purchase_id;
             statusOutput.textContent = 'Ожидание оплаты...';
             showNotification('Покупка создана, перенаправление на оплату...', 'success');
-            if (data.invoice_url) {
+            if (data.qr_code) {
+                document.getElementById('payment-message').textContent = data.payment_message;
+                document.getElementById('payment-qr').src = data.qr_code;
+                document.getElementById('payment-block').style.display = 'block';
+            } else if (data.invoice_url) {
                 window.open(data.invoice_url, "_blank");
-            } else {
-                checkPurchaseStatus(purchaseId);
             }
+
+            checkPurchaseStatus(data.purchase_id);
         }
     } catch (e) {
         showNotification('Ошибка сервера', 'error');
@@ -201,13 +205,19 @@ function checkPurchaseStatus(purchaseId) {
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    statusOutput.textContent = `Ошибка: ${data.error}`;
-                    showNotification(`Ошибка: ${data.error}`, 'error');
+                    statusOutput.textContent = `Ошибка`;
+                    showNotification(`Ошибка`, 'error');
                     clearInterval(interval);
+                    document.getElementById('payment-block').style.display = 'none';
+                    document.getElementById('payment-message').textContent = '';
+                    document.getElementById('payment-qr').src = '';
                 } else if (data.status === 'completed') {
                     statusOutput.textContent = 'Покупка завершена!';
                     showNotification('Покупка успешно завершена!', 'success');
                     clearInterval(interval);
+                    document.getElementById('payment-block').style.display = 'none';
+                    document.getElementById('payment-message').textContent = '';
+                    document.getElementById('payment-qr').src = '';
                     quantityInput2.value = '';
                     userInput.value = userInput.value;
                     currencySelect.value = 'TON';
@@ -216,10 +226,16 @@ function checkPurchaseStatus(purchaseId) {
                     statusOutput.textContent = `Ошибка: свяжитесь с поддержкой: https://t.me/HappySupportStars`;
                     showNotification(`Ошибка: свяжитесь с поддержкой: https://t.me/HappySupportStars`, 'error');
                     clearInterval(interval);
+                    document.getElementById('payment-block').style.display = 'none';
+                    document.getElementById('payment-message').textContent = '';
+                    document.getElementById('payment-qr').src = '';
                 } else if (data.status === 'cancelled') {
                     statusOutput.textContent = 'Оплата не произошла в течение 15 минут, счет отменен.';
                     showNotification('Оплата не произошла в течение 15 минут, счет отменен.', 'error');
                     clearInterval(interval);
+                    document.getElementById('payment-block').style.display = 'none';
+                    document.getElementById('payment-message').textContent = '';
+                    document.getElementById('payment-qr').src = '';
                 }
             })
             .catch(() => {

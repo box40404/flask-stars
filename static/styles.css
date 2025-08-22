@@ -203,6 +203,26 @@ body {
     border: 3px solid #271877; /* Ensure border remains on hover */
 }
 
+#payment-block {
+    display: none;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+#payment-block pre {
+    white-space: pre-wrap;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+#payment-block img {
+    max-width: 200px;
+    display: block;
+    margin: 0 auto;
+}
+
 /* Footer - точно как в макете */
 .footer {
     margin-top: 60px;

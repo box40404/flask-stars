@@ -1,6 +1,10 @@
 import aiohttp
 import logging
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Настройка логирования
 logging.basicConfig(
@@ -63,6 +67,9 @@ CHAT_ID = -1002800830097 # ID канала для проверки подпис�
 CHANNEL_LINK = "https://t.me/+WKWn3RpfKKEwMWFi"  # линк на канал для доступа к боту
 SUPPORT_URL = "https://t.me/HappySupportStars"  # линк ссылки поддержки
 ADMIN_ID = ['1384040605']
+
+TON_WALLET_ADDRESS = '0QCzH0vnl-glR5XORGbJ3DCCXVMn_vBbEd6RS2InrWupf7OD'
+TONCENTER_API_KEY = os.getenv("TONCENTER_API_KEY")
 
 STAR_PRICE_RUB = 1.69
 

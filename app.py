@@ -1,4 +1,5 @@
 from quart import Quart
+from helpers.purchase import poll_ton_transactions
 from routes.web import web
 from routes.api import api
 from aiocryptopay import AioCryptoPay, Networks
@@ -22,6 +23,10 @@ app.config["FRAGMENT"] = FragmentService()
 # Регистрация blueprint'ов
 app.register_blueprint(web)
 app.register_blueprint(api, url_prefix="/api")
+
+@app.before_serving
+async def startup():
+    asyncio.create_task(poll_ton_transactions())
 
 # Закрытие ресурсов при завершении приложения
 @app.after_serving

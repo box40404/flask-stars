@@ -97,14 +97,14 @@ class Database:
             result = await cursor.fetchone()
             return result[0] if result and result[0] else None
 
-    async def create_purchase(self, user_id: int, item_type: str, amount: int, recipient_username: str, currency: str, price: float, invoice_id: str, bonus_stars_used: float = 0.0, bonus_discount: float = 0.0):
+    async def create_purchase(self, user_id: int, item_type: str, amount: int, recipient_username: str, currency: str, price: float, invoice_id: str, bonus_stars_used: float = 0.0, bonus_discount: float = 0.0, comment: str = None):
         async with aiosqlite.connect(self.db_name) as db:
             await db.execute(
                 """
-                INSERT INTO purchases (user_id, product, amount, recipient_username, currency, price, invoice_id, status, created_at, updated_at, bonus_stars_used, bonus_discount)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO purchases (user_id, product, amount, recipient_username, currency, price, invoice_id, comment, status, created_at, updated_at, bonus_stars_used, bonus_discount)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (user_id, item_type, amount, recipient_username, currency, price, invoice_id, "pending", (datetime.utcnow() + timedelta(hours=3)).strftime("%d.%m.%Y %H:%M:%S"), (datetime.utcnow() + timedelta(hours=3)).strftime("%d.%m.%Y %H:%M:%S"), bonus_stars_used, bonus_discount)
+                (user_id, item_type, amount, recipient_username, currency, price, invoice_id, comment, "pending", (datetime.utcnow() + timedelta(hours=3)).strftime("%d.%m.%Y %H:%M:%S"), (datetime.utcnow() + timedelta(hours=3)).strftime("%d.%m.%Y %H:%M:%S"), bonus_stars_used, bonus_discount)
             )
             await db.commit()
             cursor = await db.execute("SELECT last_insert_rowid()")
