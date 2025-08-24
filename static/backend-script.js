@@ -251,9 +251,7 @@ function checkPurchaseStatus(purchaseId) {
 
 // Обработчик авторизации
 telegramAuthButton.addEventListener('click', () => {
-    const sessionId = crypto.randomUUID();
-    localStorage.setItem('session_id', sessionId);
-    const botUrl = `https://t.me/HappyStarsRobot?start=webapp-${sessionId}`;
+    const botUrl = `https://t.me/HappyStarsRobot?start=webapp-`;
     window.location.href = botUrl;
 });
 
