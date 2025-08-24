@@ -1,32 +1,81 @@
-/* Основные стили для HAPPY STARS - точно по макету */
+/* Reset и базовые стили */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    max-width: 100%;
 }
 
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #F8F0E3;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #161618;
+    color: white;
     min-height: 100vh;
-    position: relative;
+    margin: 0;
+    padding: 0;
     overflow-x: hidden;
+    width: 100%;
 }
 
-/* Header - точно как в макете */
-.header {
-    padding: 20px 0;
+.container {
+    width: 100%;
+    max-width: 1920px;
+    margin: 0 auto;
+    background-color: #161618;
     position: relative;
-    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
 }
-.header-container-content{
+
+/* Хедер */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 43px 45px 32px 45px;
+    width: 100%;
+    max-width: 1620px;
 }
 
 .logo {
-    color: #2C2C54;
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin: 0;
+    width: 290px;
+    height: 75px;
+    object-fit: contain;
+}
+
+.telegram-login-btn {
+    width: 360px;
+    height: 61px;
+    background: linear-gradient(90deg, rgba(249,197,242,1) 0%, rgba(14,57,254,1) 100%);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 25px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.telegram-login-btn:hover {
+    transform: scale(1.02);
+}
+
+.telegram-login-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: 20px;
+    background: linear-gradient(90deg, rgba(249,197,242,1) 0%, rgba(14,57,254,1) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .user-profile {
@@ -35,172 +84,297 @@ body {
     gap: 10px;
 }
 
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
 .user-name {
     color: #2C2C54;
     font-size: 1rem;
     font-weight: 500;
 }
 
-.btn-support {
-    background-color: #271877;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 16px;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-}
-
-.btn-support:hover {
-    background-color: #3C2A9C; /* Slightly brighter shade of #271877 */
-    color: white; /* Ensure text color remains */
-    border: none; /* Ensure border doesn't appear */
-    border-radius: 16px; /* Maintain border-radius */
-    padding: 12px 24px; /* Maintain padding */
-}
-
-/* Main Content - точно как в макете */
-.main-content {
-    padding: 60px 0;
-    min-height: 70vh;
-}
-
-.main-title {
-    color: #271877;
-    font-size: 2.2rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.HAPPY-STAR__container{
+/* Основная форма */
+.main-form {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 540px;
+    margin: 0 auto 81px auto;
+    padding: 0 16px;
+    width: 100%;
 }
 
-/* Purchase Form - точно как в макете */
-.purchase-section {
-    padding: 20px;
-}
-
-.purchase-form {
-    background-color: #271877;
-    padding: 30px;
-    border-radius: 20px;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-    color: white;
+.form-section {
+    width: 100%;
+    margin-bottom: 40px;
 }
 
 .input-wrapper {
     position: relative;
+    margin-bottom: 25px;
+    width: 100%;
+    height: 54px;
+}
+
+.input-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: 20px;
+    background: linear-gradient(270deg, rgba(27,67,252,1) 0%, rgba(248,193,242,1) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.form-input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    border-radius: 20px;
+    padding: 14px 56px;
+    color: rgba(242, 193, 242, 0.48);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    text-align: center;
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: rgba(242, 193, 242, 0.48);
 }
 
 .input-icon {
     position: absolute;
-    left: 15px;
+    left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: #2C2C54;
+    width: 29px;
+    height: 29px;
     z-index: 2;
 }
 
-.form-control {
-    background-color: white;
-    border: none;
-    padding: 15px 15px 15px 50px;
-    border-radius: 10px;
-    font-size: 1rem;
-    width: 100%;
-}
-
-.form-control:focus {
-    outline: none;
-}
-
-/* Star Options - точно как в макете */
-.star-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.option-item {
-    display: flex;
-    align-items: center;
-}
-
-.option-item input[type="radio"] {
-    display: none;
-}
-
-.option-item label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: white;
-    font-size: 0.9rem;
+/* Переключатель (свитч) */
+.switch-btn {
+    width: 147px;
+    height: 49px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    position: relative;
     cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 8px;
-    width: 100%;
+    margin: 0 auto 40px auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.switch-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: 20px;
+    background: linear-gradient(90deg, rgba(249,197,242,1) 0%, rgba(14,57,254,1) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.switch-btn .btn-icon:nth-of-type(2) {
+    opacity: 0.5;
+    filter: brightness(70%);
+}
+
+.switch-btn.on .btn-icon:nth-of-type(2) {
+    opacity: 1;
+    filter: brightness(100%);
+}
+
+.switch-btn.on .btn-icon:nth-of-type(1) {
+    opacity: 0.5;
+    filter: brightness(70%);
+}
+
+.slider {
+    position: absolute;
+    width: 73px;
+    height: 47px;
+    border-radius: 20px;
+    left: 0.1px;
+    transition: left 0.3s ease;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    z-index: 2;
 }
 
-.option-item input[type="radio"]:checked + label {
-    background-color: rgba(255,255,255,0.2);
+.slider::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 3px;
+    border-radius: 20px;
+    background: linear-gradient(90deg, rgba(249,197,242,1) 0%, rgba(14,57,254,1) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1;
+    pointer-events: none;
 }
 
-.option-item i {
-    color: #FFD700;
+.switch-btn.on .slider {
+    left: 73px;
 }
 
-.more-option label {
-    color: #B8B8D1;
-    font-style: italic;
+.btn-icon {
+    width: 35px;
+    height: 35px;
+    z-index: 3;
 }
 
-.more-option .fa-chevron-down {
-    margin-left: 5px;
-    font-size: 0.8rem;
+.btn-icon-left{
+    margin-left: 17px !important;
 }
 
-.cost-display {
-    color: white;
+.btn-icon-right{
+    margin-right: 17px !important;
 }
 
-.status-display {
-    display: none;
-    color: white;
-}
-
-/* Buy Button - точно как в макете */
-.btn-buy {
-    background-color: #F9B2DF;
-    color: #271877;
-    border: 3px solid #271877;
-    padding: 15px 30px;
-    border-radius: 25px;
-    font-size: 1.1rem;
-    font-weight: bold;
+/* Выбор количества звезд */
+.star-selection {
     width: 100%;
-    transition: background-color 0.3s ease;
+    margin-bottom: 40px;
 }
 
-.btn-buy:hover {
-    background-color: #FFC1E6; /* Slightly brighter pink for hover effect */
-    border: 3px solid #271877; /* Ensure border remains on hover */
+.star-amounts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+}
+
+.star-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 54px;
+    background: transparent;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 25px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.star-btn:hover {
+    transform: scale(1.02);
+}
+
+.star-btn.active {
+    background: linear-gradient(90deg, rgba(249,197,242,1) 0%, rgba(14,57,254,1) 100%);
+}
+
+.star-btn img {
+    width: 27px;
+    height: 27px;
+    position: absolute;
+    left: 20px;
+}
+
+/* Покупка */
+.purchase-section {
+    text-align: center;
+    margin-bottom: 40px;
+    width: 100%;
+}
+
+.buy-btn {
+    width: 100%;
+    height: 68px;
+    background: linear-gradient(90deg, rgba(249,197,242,1) 0%, rgba(14,57,254,1) 100%);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 29px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: transform 0.2s ease;
+}
+
+.buy-btn:hover {
+    transform: scale(1.02);
+}
+
+.price {
+    color: #f2c1f2;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+/* Чекбоксы */
+.checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #f2c1f2;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.checkbox {
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    position: relative;
+    cursor: pointer;
+}
+
+.checkbox::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 3px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, rgba(249,197,242,1) 0%, rgba(14,57,254,1) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    z-index: 2;
 }
 
 #payment-block {
@@ -223,124 +397,1809 @@ body {
     margin: 0 auto;
 }
 
-/* Footer - точно как в макете */
-.footer {
-    margin-top: 60px;
-    position: relative;
-}
-
-.about-link {
-    color: #271877;
-    text-decoration: none;
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 20px;
-    display: inline-block;
-}
-
-.footer-bar {
-    height: 8px;
-    background-color: #271877;
-    margin-top: 20px;
-}
-
-/* Background Stars - точно как в макете */
-.background-stars {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
+/* Декоративные элементы */
+.decoration {
+    position: absolute;
+    width: 173px;
+    height: 171px;
     z-index: 1;
 }
 
-.sparkle-star {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: #FFB6C1;
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    opacity: 0.6;
+.decoration-right {
+    top: 276px;
+    right: 260px;
 }
 
-.star-1 { top: 15%; left: 10%; }
-.star-2 { top: 25%; right: 15%; }
-.star-3 { top: 45%; left: 5%; }
-.star-4 { top: 65%; right: 10%; }
-.star-5 { top: 75%; left: 20%; }
-.star-6 { top: 35%; right: 25%; }
-.star-7 { top: 55%; left: 30%; }
-.star-8 { top: 85%; right: 30%; }
+.decoration-left {
+    top: 666px;
+    left: 157px;
+}
 
-/* Responsive Design для 1920px */
-@media (min-width: 1920px) {
+/* Секция статистики */
+.statistics-section {
+    position: relative;
+    width: 100%;
+    margin-top: 162px;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    box-sizing: border-box;
+}
+
+.stats-bg {
+   width: 100%;
+    max-width: 564px;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 32px;
+    margin-top: 230px;
+
+}
+
+.stats-decoration-right {
+    position: absolute;
+    width: 304px;
+    height: 419px;
+    top: 478px;
+    right: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.stats-decoration-left {
+    position: absolute;
+    width: 304px;
+    height: 419px;
+    top: 302px;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.stats-pattern-top {
+    position: absolute;
+    width: 100%;
+    max-width: 1472px;
+    height: 99px;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.stats-pattern-bottom {
+    position: absolute;
+    width: 100%;
+    max-width: 1472px;
+    height: 99px;
+    top: 516px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.stats-banner {
+    width: 61%;
+    max-width: 1351px;
+    height: 98px;
+    background: linear-gradient(221deg, rgba(50, 50, 54, 1) 0%, rgba(35, 35, 39, 1) 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    padding-left: 59px;
+    margin-bottom: 49px;
+    position: relative;
+    margin-top: 243px;
+}
+
+.banner-accent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18px;
+    height: 98px;
+    background: linear-gradient(180deg, rgba(238,190,242,1) 0%, rgba(33,68,252,1) 100%);
+    border-bottom-left-radius: 20px;
+    border-top-left-radius: 20px;
+}
+
+.stats-banner h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 39px;
+    color: white;
+    line-height: 1.1;
+}
+
+/* Статистические данные */
+.stats-grid {
+    position: absolute;
+    top: 109px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    width: 100%;
+    max-width: 972px;
+    margin-bottom: 49px;
+    justify-items: center;
+}
+
+.stat-item {
+    text-align: center;
+    color: white;
+    padding: 16px;
+    width: 100%;
+    max-width: 405px;
+}
+
+.stat-number {
+    font-family: 'Along Sans s2', 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 52px;
+    letter-spacing: 2.08px;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-family: 'Along Sans s2', 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 29px;
+    letter-spacing: 0.42px;
+    line-height: 1.1;
+}
+
+/* Карточки преимуществ */
+.feature-cards {
+    width: 100%;
+    max-width: 1134px;
+    display: flex;
+    flex-direction: column;
+    gap: 45px;
+}
+
+.feature-row {
+    display: flex;
+    gap: 45px;
+    width: 100%;
+}
+
+.feature-card {
+    width: 100%;
+    min-height: 340px;
+    background: linear-gradient(221deg, rgba(50,50,54,1) 0%, rgba(35,35,39,1) 100%);
+    border-radius: 20px;
+    padding: 40px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    z-index: 1;
+}
+
+.feature-content {
+    flex: 1;
+    max-width: 365px;
+}
+
+.feature-content h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+
+.feature-content p {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 26px;
+    color: white;
+    line-height: 1.1;
+}
+
+.feature-image {
+    width: 194px;
+    height: 166px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.icon-container {
+    position: relative;
+    border-radius: 13px;
+    background: transparent;
+    border: 5px solid transparent;
+    background-clip: padding-box;
+    flex-shrink: 0;
+}
+
+
+
+.icon-container img {
+    z-index: 2;
+    width: 122px;
+    height: 105px;
+}
+
+
+
+/* Нижняя секция */
+.bottom-section {
+    position: relative;
+    width: 100%;
+    margin-top: 81px;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.bottom-decoration-right {
+    position: absolute;
+    width: 488px;
+    height: 624px;
+    top: 221px;
+    right: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.bottom-decoration-left {
+    position: absolute;
+    width: 604px;
+    height: 702px;
+    top: -96px;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.additional-cards {
+    width: 100%;
+    max-width: 1134px;
+    margin: 0 auto;
+    display: flex;
+    gap: 45px;
+    margin-bottom: 49px;
+}
+
+/* Реферальная секция */
+.referral-section {
+    width: 100%;
+    max-width: 1356px;
+    height: 347px;
+    margin: 0 auto;
+    position: relative;
+    background: url('/static/img/Rectangle 18.svg') no-repeat center center;
+    background-size: cover;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 56px;
+}
+
+.referral-content {
+    max-width: 711px;
+}
+
+.referral-content h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: 39px;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 32px;
+}
+
+.join-btn {
+    width: 433px;
+    height: 68px;
+    background: linear-gradient(90deg, rgba(249,197,242,1) 0%, rgba(14,57,254,1) 100%);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 32px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.join-btn:hover {
+    transform: scale(1.02);
+}
+
+.referral-decoration {
+    width: 340px;
+    height: 185px;
+    object-fit: contain;
+}
+
+/* Футер */
+.footer {
+    width: 100%;
+    height: 189px;
+    background-color: #0e0e10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 439px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 81px;
+    align-items: center;
+}
+
+.footer-links a {
+    color: white;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 26px;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #f2c1f2;
+}
+
+/* Media Queries for Responsive Design */
+
+/* 2560px (large desktops) */
+@media (min-width: 1921px) and (max-width: 2560px) {
     .container {
-        max-width: 1800px;
+        max-width: 1920px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     
-    .main-title {
-        font-size: 2.8rem;
+    .header { 
+        padding: 49px 65px 40px 65px; 
+        max-width: 1458px;
     }
     
-    .logo h1 {
-        font-size: 3rem;
+    .logo { 
+        width: 320px; 
+        height: 82px; 
     }
     
-    .star-body {
-        width: 250px;
+    .telegram-login-btn { 
+        width: 421px; 
+        height: 75px; 
+        font-size: 29px; 
+    }
+    
+    .main-form { 
+        max-width: 616px; 
+    }
+    
+    .input-wrapper { 
+        height: 60px; 
+    }
+    
+    .form-input { 
+        font-size: 21px; 
+    }
+    
+    .star-amounts { 
+        gap: 20px; 
+    }
+    
+    .star-btn { 
+        height: 60px; 
+        font-size: 29px; 
+    }
+    
+    .buy-btn { 
+        height: 75px; 
+        font-size: 32px; 
+    }
+    
+    .price { 
+        font-size: 21px; 
+    }
+    
+    .stats-decoration-left{
+        left: -373px;
+    }
+    .stats-decoration-right{
+        right: -320px;
+    }
+    .bottom-decoration-left{
+        left: -370px;
+    }
+    .bottom-decoration-right{
+        right: -320px;
+    }
+    
+    .statistics-section { 
+        margin-top: 178px; 
+    }
+    
+    .stats-banner { 
+        max-width: 1377px; 
+    }
+}
+
+/* 1920px (baseline desktops) */
+@media (max-width: 1920px) {
+    .container { 
+        max-width: 1920px; 
+    }
+    .stats-decoration-right {
+        right: 0
+    }
+    .stats-decoration-left{
+        left: 0
+    }
+    .bottom-decoration-right{
+        right: 0
+    }
+    .bottom-decoration-left{
+        left: 0;
+        top: -430px;
+    }
+}
+
+/* 1440px */
+@media (max-width: 1440px) {
+    .container {
+        max-width: 1037px;
+        padding: 0 16px;
+    }
+
+    .header {
+        padding: 32px 24px;
+    }
+
+    .logo {
+        width: 240px;
+        height: 62px;
+    }
+
+    .telegram-login-btn {
+        width: 292px;
+        height: 57px;
+        font-size: 22px;
+    }
+
+    .main-form {
+        max-width: 405px;
+        padding: 0 16px;
+    }
+
+    .input-wrapper {
+        height: 49px;
+    }
+
+    .form-input {
+        font-size: 16px;
+        padding: 12px 40px;
+    }
+
+    .input-icon {
+        width: 28px;
+        height: 28px;
+        left: 12px;
+    }
+
+    .switch-btn {
+        width: 132px;
+        height: 40px;
+    }
+
+    .slider {
+        width: 65px;
+        height: 39px;
+    }
+
+    .switch-btn.on .slider {
+        left: 65px;
+    }
+
+    .btn-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .star-amounts {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .star-btn {
+        height: 49px;
+        font-size: 22px;
+    }
+
+    .star-btn img {
+        width: 24px;
+        height: 24px;
+        left: 16px;
+    }
+
+    .buy-btn {
+        height: 57px;
+        font-size: 26px;
+    }
+
+    .price {
+        font-size: 16px;
+    }
+
+    .checkbox-label {
+        font-size: 14px;
+    }
+
+    .checkbox {
+        width: 22px;
+        height: 22px;
+    }
+
+    .decoration {
+        width: 140px;
+        height: 138px;
+    }
+
+    .decoration-right {
+        top: 200px;
+        right: 50px;
+    }
+
+    .decoration-left {
+        top: 500px;
+        left: 50px;
+    }
+
+    .statistics-section {
+        margin-top: 122px;
+        padding: 0 32px;
+    }
+
+    .stats-bg {
+        max-width: 446px;
+    }
+
+    .stats-decoration-right {
+        right: -100px;
+    }
+
+    .stats-decoration-left {
+        left: -100px;
+    }
+
+    .stats-decoration-right, .stats-decoration-left {
+        width: 200px;
+        height: 350px;
+    }
+
+    .stats-pattern-top, .stats-pattern-bottom {
+        max-width: 80%;
+    }
+
+    .stats-banner {
+        max-width: 90%;
+        padding-left: 32px;
+        margin-bottom: 49px;
+        width: 86%
+    }
+
+    .stats-banner h2 {
+        font-size: 28px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        max-width: 648px;
+        margin-bottom: 49px;
+        top: 201px;
+    }
+
+    .stat-item {
+        padding: 12px;
+    }
+
+    .stat-number {
+        font-size: 36px;
+    }
+
+    .stat-label {
+        font-size: 18px;
+    }
+
+    .feature-cards {
+        max-width: 810px;
+        gap: 24px;
+        margin-top: 32px;
+    }
+
+    .feature-row {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .feature-card {
+        min-height: auto;
+        padding: 24px;
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+
+    .feature-content {
+        max-width: 100%;
+    }
+
+    .feature-content h3 {
+        font-size: 21px;
+    }
+
+    .feature-content p {
+        font-size: 18px;
+    }
+
+    .feature-image {
+        width: 162px;
+        height: 144px;
+    }
+
+    .bottom-section {
+        margin-top: 65px;
+        padding: 0 32px;
+    }
+
+    .bottom-decoration-right {
+        top: 51px;
+        right: -213px;
+    }
+
+    .bottom-decoration-left {
+        top: -146px;
+        left: -218px;
+    }
+
+    .bottom-decoration-right, .bottom-decoration-left {
+        width: 325px;
+        height: 500px;
+    }
+
+    .additional-cards {
+        max-width: 810px;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .referral-section {
+        max-width: 95%;
+        height: 324px;
+        padding: 0 24px;
+    }
+
+    .referral-content {
+        max-width: 486px;
+    }
+
+    .referral-content h2 {
+        font-size: 26px;
+    }
+
+    .join-btn {
+        width: 324px;
+        height: 57px;
+        font-size: 26px;
+    }
+
+    .referral-decoration {
+        width: 340px;
+        height: 185px;
+    }
+
+    .footer {
+        height: 162px;
+        margin-top: 162px;
+    }
+
+    .footer-links {
+        gap: 40px;
+    }
+
+    .footer-links a {
+        font-size: 20px;
+    }
+}
+
+/* 1024px */
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 16px;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 16px;
+        padding: 24px 16px;
+    }
+
+    .logo {
+        width: 200px;
+        height: 52px;
+    }
+
+    .telegram-login-btn {
+        width: 100%;
+        max-width: 324px;
+        height: 49px;
+        font-size: 20px;
+    }
+
+    .main-form {
+        max-width: 100%;
+        padding: 0 40px;
+    }
+
+    .input-wrapper {
+        height: 40px;
+    }
+
+    .form-input {
+        font-size: 14px;
+        padding: 10px 32px;
+    }
+
+    .input-icon {
+        width: 24px;
+        height: 24px;
+        left: 10px;
+    }
+
+    .switch-btn {
+        width: 116px;
+        height: 36px;
+    }
+
+    .slider {
+        width: 57px;
+        height: 35px;
+    }
+
+    .switch-btn.on .slider {
+        left: 57px;
+    }
+
+    .btn-icon {
+        width: 25px;
+        height: 25px;
+    }
+
+    .star-amounts {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .star-btn {
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .star-btn img {
+        width: 20px;
+        height: 20px;
+        left: 12px;
+    }
+
+    .buy-btn {
+        height: 49px;
+        font-size: 22px;
+    }
+
+    .price {
+        font-size: 14px;
+    }
+
+    .checkbox-label {
+        font-size: 13px;
+    }
+
+    .checkbox {
+        width: 20px;
+        height: 20px;
+    }
+
+    .decoration {
+        width: 100px;
+        height: 100px;
+    }
+
+    .decoration-right {
+        top: 150px;
+        right: 20px;
+    }
+
+    .decoration-left {
+        top: 326px;
+        left: 3px;
+    }
+
+    .statistics-section {
+        margin-top: 81px;
+        padding: 0 24px;
+    }
+
+    .stats-bg {
+        max-width: 365px;
+    }
+    .stats-decoration-left{
+        left: -20px;
+    }
+    .stats-decoration-right{
+        right: -20px;
+    }
+
+    .stats-decoration-right, .stats-decoration-left {
+        width: 150px;
         height: 250px;
     }
-    
-    .purchase-form {
-        padding: 40px;
-    }
-    
-    .btn-buy {
-        padding: 20px 40px;
-        font-size: 1.3rem;
-    }
-}
 
-@media (max-width: 991px) {
-    .header-container-content{
+    .stats-banner {
+        height: 81px;
+        padding-left: 24px;
+        margin-bottom: 32px;
+    }
+
+    .stats-banner h2 {
+        font-size: 22px;
+    }
+    .banner-accent{
+        height: 81px;
+    }
+
+    .stats-grid {
+        gap: 16px;
+        max-width: 486px;
+        margin-bottom: 32px;
+    }
+
+    .stat-item {
+        padding: 12px;
+    }
+
+    .stat-number {
+        font-size: 29px;
+    }
+
+    .stat-label {
+        font-size: 16px;
+    }
+    .banner-accent{
+        height: 81px;
+    }
+
+    .feature-cards {
+        max-width: 648px;
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .feature-row {
         flex-direction: column;
-        gap: 50px;
+        gap: 16px;
     }
-    .HAPPY-STAR__container{
-        justify-content: center;
+
+    .feature-card {
+        padding: 16px;
     }
-    .HAPPY-STAR__container_MASKOT{
-        height:350px;
-        width: 350px;
+
+    .feature-content h3 {
+        font-size: 20px;
+    }
+
+    .feature-content p {
+        font-size: 16px;
+    }
+
+    .feature-image {
+        width: 135px;
+        height: 117px;
+    }
+
+    .bottom-section {
+        margin-top: 49px;
+        padding: 0 24px;
+    }
+    .bottom-decoration-right{
+        right: -18px;
+        top: 106px;
+    }
+    .bottom-decoration-left{
+        left: -87px;
+        top: -280px;
+    }
+
+    .bottom-decoration-right, .bottom-decoration-left {
+        width: 250px;
+        height: 347px;
+    }
+
+    .referral-section {
+        height: 250px;
+        padding: 0 16px;
+        max-width: 85%;
+    }
+
+    .referral-content h2 {
+        font-size: 22px;
+    }
+
+    .join-btn {
+        width: 243px;
+        height: 49px;
+        font-size: 20px;
+    }
+
+    .referral-decoration {
+        width: 335px;
+        height: 235px;
+    }
+
+    .footer {
+        height: 122px;
+        margin-top: 140px;
+
+    }
+
+    .footer-links a {
+        font-size: 16px;
     }
 }
 
-@media (min-width: 768px) {
-    .HAPPY-STAR__container{
-        justify-content: center;
+/* 768px */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 12px;
     }
-    .HAPPY-STAR__container_MASKOT{
-        height:350px;
-        width: 350px;
-    }
-}
 
-@media (max-width: 475px) {
-    .logo-img {
-        width: 350px;
+    .header {
+        padding: 16px 12px;
     }
-    .btn-support {
-        padding: 12px 32px;
-    }
-}
 
-@media (max-width: 320px) {
-    .logo-img {
-        width: 300px;
+    .logo {
+        width: 180px;
+        height: 47px;
     }
-    .HAPPY-STAR__container_MASKOT{
-        width: 300px;
+
+    .telegram-login-btn {
+        max-width: 243px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .main-form {
+        padding: 0 24px;
+        margin-bottom: 40px;
+    }
+
+    .input-wrapper {
+        height: 36px;
+    }
+
+    .form-input {
+        font-size: 13px;
+        padding: 8px 28px;
+    }
+
+    .input-icon {
+        width: 20px;
+        height: 20px;
+        left: 8px;
+    }
+
+    .switch-btn {
+        width: 100px;
+        height: 32px;
+    }
+
+    .slider {
+        width: 49px;
+        height: 31px;
+    }
+
+    .btn-icon-left{
+    margin-left: 14px !important;
+    }
+
+    .btn-icon-right{
+        margin-right: 14px !important;
+    }
+
+    .switch-btn.on .slider {
+        left: 49px;
+    }
+
+    .btn-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .star-amounts {
+        grid-template-columns: 1fr;
+    }
+
+    .star-btn {
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .star-btn img {
+        width: 18px;
+        height: 18px;
+        left: 10px;
+    }
+
+    .buy-btn {
+        height: 40px;
+        font-size: 20px;
+
+    }
+    .decoration-left{
+        top: 293px;
+    }
+    .decoration-right{
+        top: 120px;
+    }
+    .price {
+        font-size: 13px;
+    }
+
+    .checkbox-label {
+        font-size: 12px;
+    }
+
+    .checkbox {
+        width: 16px;
+        height: 16px;
+    }
+
+    .checkbox:checked::after {
+        font-size: 12px;
+    }
+
+    .decoration {
+        width: 80px;
+        height: 80px;
+    }
+
+    .statistics-section {
+        margin-top: 65px;
+        padding: 0 16px;
+    }
+
+    .stats-bg {
+        max-width: 284px;
+    }
+    .stats-decoration-right, .stats-decoration-left {
+        width: 100px;
+        height: 150px;
+    }
+    .stats-pattern-top{
+        top: 80px;
+    }
+    .stats-pattern-bottom{
+        top: 450px;
+    }
+    .stats-pattern-top, .stats-pattern-bottom {
+        width: 70%;
+    }
+
+    .stats-banner {
+        height: 65px;
+        padding-left: 24px;
+        margin-bottom: 24px;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .stats-banner h2 {
+        font-size: 20px;
+    }
+    .banner-accent{
+        height: 64px;
+    }
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        max-width: 324px;
+        margin-bottom: 24px;
+        top: 138px;
+    }
+
+    .stat-item {
+        padding: 12px;
+    }
+
+    .stat-number {
+        font-size: 22px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+    }
+
+    .feature-cards {
+        max-width: 100%;
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .feature-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .feature-card {
+        padding: 16px;
+        min-height: auto;
+    }
+
+    .feature-content h3 {
+        font-size: 16px;
+    }
+
+    .feature-content p {
+        font-size: 13px;
+    }
+
+    .feature-image {
+        width: 108px;
+        height: 90px;
+    }
+
+    .bottom-section {
+        margin-top: 32px;
+        padding: 0 16px;
+    }
+
+    .bottom-decoration-right, .bottom-decoration-left {
+        width: 200px;
         height: 300px;
+    }
+
+    .referral-section {
+        height: 365px;
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: center;
+        justify-content: center;
+        max-width: 100%;
+    }
+
+    .referral-content h2 {
+        font-size: 20px;
+    }
+
+    .join-btn {
+        width: 202px;
+        height: 40px;
+        font-size: 16px;
+
+    }
+
+    .referral-decoration {
+        width: 300px;
+        height: 200px;
+        margin-bottom: 16px;
+        margin-top: 16px;
+    }
+
+    .footer {
+        height: 122px;
+        margin-top: 32px;
+    }
+
+    .footer-links {
+        gap: 24px;
+        flex-direction: column;
+    }
+
+    .footer-links a {
+        font-size: 14px;
+    }
+}
+
+/* 425px */
+@media (max-width: 425px) {
+    .header {
+        padding: 12px 8px;
+    }
+
+    .logo {
+        width: 150px;
+        height: 39px;
+    }
+
+    .telegram-login-btn {
+        max-width: 100%;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    .main-form {
+        padding: 0 12px;
+        margin-bottom: 24px;
+    }
+
+    .input-wrapper {
+        height: 32px;
+    }
+
+    .form-input {
+        font-size: 12px;
+        padding: 6px 24px;
+    }
+
+    .input-icon {
+        width: 18px;
+        height: 18px;
+        left: 6px;
+    }
+
+    .switch-btn {
+        width: 81px;
+        height: 28px;
+    }
+
+    .slider {
+        width: 40px;
+        height: 27px;
+    }
+    .btn-icon-left{
+        margin-left: 15px !important;
+    }
+    .btn-icon-right{
+        margin-right: 15px !important;
+    }
+
+    .switch-btn.on .slider {
+        left: 40px;
+    }
+
+    .btn-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .star-btn {
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .star-btn img {
+        width: 16px;
+        height: 16px;
+        left: 8px;
+    }
+
+    .buy-btn {
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .price {
+        font-size: 12px;
+    }
+
+    .checkbox-label {
+        font-size: 10px;
+    }
+
+    .checkbox {
+        width: 14px;
+        height: 14px;
+    }
+
+    .decoration {
+        width: 60px;
+        height: 60px;
+        
+    }
+    .decoration-left{
+        top: 275px;
+
+    }
+    .statistics-section {
+        margin-top: 49px;
+    }
+
+    .stats-bg {
+        max-width: 202px;
+    }
+    
+    .stats-decoration-right, .stats-decoration-left {
+        width: 80px;
+        height: 120px;
+    }
+
+    .stats-banner {
+        height: 54px;
+        padding-left: 12px;
+        margin-bottom: 16px;
+        border-radius: 11px;
+    }
+    .banner-accent{
+        height: 53px;
+        border-top-left-radius: 11px;
+        border-bottom-left-radius: 11px;
+    }
+    .stats-banner h2 {
+        font-size: 16px;
+        margin-left: 16px;
+    }
+
+    .stats-pattern-top{
+        top: 49px;
+    }
+
+    .stats-pattern-bottom{
+        top: 369px;
+    }
+
+    .stats-grid {
+        gap: 13px;
+        max-width: 243px;
+        top: 115px;
+    }
+
+    .stat-item {
+        padding: 8px;
+    }
+
+    .stat-number {
+        font-size: 20px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+    }
+
+    .feature-cards {
+        gap: 12px;
+    }
+
+    .feature-row {
+        gap: 12px;
+    }
+
+    .feature-card {
+        padding: 12px;
+    }
+
+    .feature-content h3 {
+        font-size: 14px;
+    }
+
+    .feature-content p {
+        font-size: 12px;
+    }
+
+    .feature-image {
+        width: 90px;
+        height: 72px;
+    }
+
+    .bottom-section {
+        margin-top: 24px;
+    }
+
+    .bottom-decoration-right, .bottom-decoration-left {
+        width: 150px;
+        height: 200px;
+    }
+
+    .referral-section {
+        height: 324px;
+        padding: 0 8px;
+        gap: 16px;
+    }
+
+    .referral-content h2 {
+        font-size: 16px;
+    }
+
+    .join-btn {
+        width: 162px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    .referral-decoration {
+        width: 200px;
+        height: 150px;
+        margin-bottom: 0px;
+        margin-top: 0px;
+    }
+
+    .footer {
+        height: 162px;
+        margin-top: 24px;
+        padding-top: 16px;
+    }
+
+    .footer-links a {
+        font-size: 13px;
+        margin-bottom: 16px;
+    }
+    
+}
+
+/* 375px */
+@media (max-width: 375px) {
+    .header {
+        padding: 8px 6px;
+    }
+
+    .logo {
+        width: 130px;
+        height: 34px;
+    }
+
+    .telegram-login-btn {
+        height: 32px;
+        font-size: 13px;
+    }
+
+    .main-form {
+        padding: 0 8px;
+    }
+
+    .input-wrapper {
+        height: 28px;
+    }
+
+    .form-input {
+        font-size: 10px;
+        padding: 5px 20px;
+    }
+
+    .input-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .switch-btn {
+        width: 73px;
+        height: 24px;
+    }
+
+    .slider {
+        width: 36px;
+        height: 23px;
+    }
+    .btn-icon-left{
+        margin-left: 10px !important;
+    }
+    .btn-icon-right{
+        margin-right: 10px !important;
+    }
+
+    .switch-btn.on .slider {
+        left: 36px;
+    }
+
+    .btn-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .star-btn {
+        height: 28px;
+        font-size: 13px;
+    }
+
+    .star-btn img {
+        width: 14px;
+        height: 14px;
+    }
+    
+
+    .buy-btn {
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .price {
+        font-size: 9px;
+    }
+
+    .checkbox-label {
+        font-size: 9px;
+    }
+
+    .checkbox {
+        width: 13px;
+        height: 13px;
+    }
+
+    .decoration {
+        width: 50px;
+        height: 50px;
+    }
+    .decoration-left {
+        top: 255px;
+    }
+    .decoration-right {
+        top: 108px;
+    }
+    .statistics-section {
+        margin-top: 40px;
+    }
+
+    .stats-bg {
+        max-width: 162px;
+    }
+
+    .stats-banner h2 {
+        font-size: 14px;
+    }
+
+    .stats-grid {
+        max-width: 202px;
+        top: 125px;
+    }
+
+    .stat-number {
+        font-size: 16px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    .feature-content h3 {
+        font-size: 13px;
+    }
+
+    .feature-content p {
+        font-size: 10px;
+    }
+
+    .feature-image {
+        width: 90px;
+        height: 72px;
+
+    }
+
+    .bottom-section {
+        margin-top: 20px;
+    }
+
+    .referral-content h2 {
+        font-size: 14px;
+    }
+
+    .join-btn {
+        width: 146px;
+        height: 32px;
+        font-size: 13px;
+    }
+    
+}
+
+/* 320px */
+@media (max-width: 320px) {
+    .header {
+        padding: 6px 4px;
+    }
+
+    .logo {
+        width: 120px;
+        height: 31px;
+    }
+
+    .telegram-login-btn {
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .main-form {
+        padding: 0 4px;
+    }
+
+    .input-wrapper {
+        height: 24px;
+    }
+
+    .form-input {
+        font-size: 9px;
+        padding: 4px 16px;
+    }
+
+    .input-icon {
+        width: 14px;
+        height: 14px;
+        left: 5px;
+    }
+
+    .switch-btn {
+        width: 65px;
+        height: 20px;
+    }
+
+    .slider {
+        width: 32px;
+        height: 19px;
+    }
+
+    .switch-btn.on .slider {
+        left: 32px;
+    }
+
+    .btn-icon {
+        width: 14px;
+        height: 14px;
+    }
+    .decoration-right {
+        top: 76px;
+        right: 0px;
+    }
+    .decoration-left {
+        top: 214px;
+        left: 0px;
+    }
+    .star-btn {
+        height: 24px;
+        font-size: 12px;
+    }
+
+    .star-btn img {
+        width: 12px;
+        height: 12px;
+        left: 6px;
+    }
+
+    .buy-btn {
+        height: 28px;
+        font-size: 13px;
+    }
+
+    .price {
+        font-size: 9px;
+    }
+
+    .checkbox-label {
+        font-size: 8px;
+    }
+
+    .checkbox {
+        width: 12px;
+        height: 12px;
+    }
+
+    .checkbox:checked::after {
+        font-size: 8px;
+    }
+
+    .decoration {
+        width: 79px;
+        height: 70px;
+    }
+
+    .statistics-section {
+        margin-top: 32px;
+    }
+
+    .stats-bg {
+        max-width: 146px;
+    }
+
+    .stats-decoration-right, .stats-decoration-left {
+        width: 60px;
+        height: 100px;
+    }
+    .banner-accent{
+        height: 50px;
+        border-top-left-radius: 11px;
+        border-bottom-left-radius: 11px;
+    }
+    .stats-banner {
+
+        padding-left: 8px;
+        margin-bottom: 12px;
+        border-radius: 11px;
+        height: 50px;
+    }
+
+    .stats-banner h2 {
+        font-size: 13px;
+    }
+
+    .stats-grid {
+        max-width: 162px;
+    }
+
+    .stat-number {
+        font-size: 14px;
+    }
+
+    .stat-label {
+        font-size: 10px;
+    }
+
+    .feature-cards {
+        gap: 8px;
+    }
+
+    .feature-row {
+        gap: 8px;
+    }
+
+    .feature-card {
+        padding: 8px;
+    }
+
+    .feature-content h3 {
+        font-size: 12px;
+    }
+
+    .feature-content p {
+        font-size: 9px;
+    }
+
+    .feature-image {
+        width: 104px;
+        height: 90px;
+    }
+
+    .bottom-section {
+        margin-top: 16px;
+    }
+
+    .bottom-decoration-right, .bottom-decoration-left {
+        width: 100px;
+        height: 150px;
+    }
+
+    .referral-section {
+        height: 243px;
+        padding: 0 6px;
+    }
+
+    .referral-content h2 {
+        font-size: 13px;
+    }
+
+    .join-btn {
+        width: 130px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .referral-decoration {
+        width: 150px;
+        height: 80px;
+    }
+
+    .footer {
+        height: 122px;
+        margin-top: 16px;
+    }
+
+    .footer-links {
+        gap: 16px;
+    }
+
+    .footer-links a {
+        font-size: 12px;
     }
 }

@@ -1,13 +1,13 @@
 const userInput = document.getElementById('usernameInput');
-const quantityInput2 = document.getElementById('quantityInput');
+const quantityInput2 = document.getElementById('starInput');
 const currencySelect = document.getElementById('currencySelect');
 const costOutput = document.getElementById('costOutput');
 const currencyOutput = document.getElementById('currencyOutput');
 const statusDisplay = document.querySelector('.status-display');
 const statusOutput = document.getElementById('statusOutput');
-const buyBtn = document.getElementById('buyButton');
+const buyBtn = document.querySelector('.buy-btn');
 const buyButtonStars = document.getElementById('buyButtonStars');
-const starsOptions = document.querySelectorAll('input[name="stars"]');
+const starsOptions = document.querySelectorAll('.star-btn');
 const telegramAuthButton = document.getElementById('telegramAuthButton');
 const userProfile = document.getElementById('userProfile');
 const userAvatar = document.getElementById('userAvatar');
@@ -265,8 +265,8 @@ quantityInput2.addEventListener('input', () => {
 });
 
 starsOptions.forEach(option => {
-    option.addEventListener('change', () => {
-        quantityInput2.value = option.value;
+    option.addEventListener('click', () => {
+        quantityInput2.value = option.dataset.amount;
         updatePrice();
     });
 });
