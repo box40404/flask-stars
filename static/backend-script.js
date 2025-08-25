@@ -249,6 +249,27 @@ function checkPurchaseStatus(purchaseId) {
     }, 5000);
 }
 
+(async function () {
+    try {
+        const response = await fetch('/api/statistics', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (data.error) {
+            console.error('Statistics error:', data.error);
+            showNotification('Ошибка загрузки статистики', 'error');
+            return;
+        }
+        document.querySelector('.stat-1 .stat-number').textContent = data.total_stars_sent.toLocaleString();
+        document.querySelector('.stat-2 .stat-number').textContent = data.yesterday_stars_sent.toLocaleString();
+        document.querySelector('.stat-3 .stat-number').textContent = data.today_stars_sent.toLocaleString();
+    } catch (e) {
+        console.error('Error fetching statistics:', e);
+        showNotification('Ошибка загрузки статистики', 'error');
+    }
+})()
+
 // Обработчик авторизации
 telegramAuthButton.addEventListener('click', () => {
     const botUrl = `https://t.me/HappyStarsRobot?start=webapp-`;

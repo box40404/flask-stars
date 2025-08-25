@@ -399,3 +399,20 @@ async def get_purchase(purchase_id):
 def get_support():
     """Получение ссылки на поддержку."""
     return jsonify({"support_url": SUPPORT_URL})
+
+@api.route("/statistics", methods=["GET"])
+async def get_statistics():
+    """Получение статистики отправленных звезд."""
+    try:
+        db = current_app.config["DB"]
+        total_stars = await db.get_total_stars_sent()
+        yesterday_stars = await db.get_yesterday_stars_sent()
+        today_stars = await db.get_today_stars_sent()
+        return jsonify({
+            "total_stars_sent": total_stars,
+            "yesterday_stars_sent": yesterday_stars,
+            "today_stars_sent": today_stars
+        })
+    except Exception as e:
+        logger.error(f"Error getting statistics: {str(e)}")
+        return jsonify({"error": str(e)}), 500

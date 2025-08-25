@@ -155,6 +155,55 @@ class Database:
                 await db.commit()
                 return user_id
             return None
+        
+    async def get_total_stars_sent(self) -> int:
+        """Получение общего количества отправленных звезд"""
+        try:
+            async with aiosqlite.connect(self.db_name) as db:
+                cursor = await db.execute(
+                    "SELECT SUM(amount) FROM purchases WHERE status = 'completed'"
+                )
+                row = await cursor.fetchone()
+                return row[0] if row and row[0] else 0
+        except Exception as e:
+            logging.error(f"Error getting total stars sent: {str(e)}")
+            return 0
+
+    async def get_yesterday_stars_sent(self) -> int:
+        """Получение количества звезд, отправленных вчера"""
+        try:
+            yesterday_start = (datetime.utcnow() - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+            yesterday_end = yesterday_start + timedelta(days=1)
+            yesterday_start_str = yesterday_start.strftime("%d.%m.%Y %H:%M:%S")
+            yesterday_end_str = yesterday_end.strftime("%d.%m.%Y %H:%M:%S")
+            async with aiosqlite.connect(self.db_name) as db:
+                cursor = await db.execute(
+                    "SELECT SUM(amount) FROM purchases WHERE status = 'completed' AND created_at >= ? AND created_at < ?",
+                    (yesterday_start_str, yesterday_end_str)
+                )
+                row = await cursor.fetchone()
+                return row[0] if row and row[0] else 0
+        except Exception as e:
+            logging.error(f"Error getting yesterday stars sent: {str(e)}")
+            return 0
+
+    async def get_today_stars_sent(self) -> int:
+        """Получение количества звезд, отправленных сегодня"""
+        try:
+            today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            today_end = today_start + timedelta(days=1)
+            today_start_str = today_start.strftime("%d.%m.%Y %H:%M:%S")
+            today_end_str = today_end.strftime("%d.%m.%Y %H:%M:%S")
+            async with aiosqlite.connect(self.db_name) as db:
+                cursor = await db.execute(
+                    "SELECT SUM(amount) FROM purchases WHERE status = 'completed' AND created_at >= ? AND created_at < ?",
+                    (today_start_str, today_end_str)
+                )
+                row = await cursor.fetchone()
+                return row[0] if row and row[0] else 0
+        except Exception as e:
+            logging.error(f"Error getting today stars sent: {str(e)}")
+            return 0
 
     async def log_transaction(self, purchase_id: int, event: str, level: str, message: str):
         async with aiosqlite.connect(self.db_name) as db:
